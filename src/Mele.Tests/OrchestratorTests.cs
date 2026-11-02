@@ -79,6 +79,8 @@ public class OrchestratorTests : IDisposable
         return new GuideGroup(game, new BiqGroup(game, "", mods), biq, fileId);
     }
 
+    private bool _extractorPresent = true;
+
     private Orchestrator Build(FakeGuide? guide = null, FakeTextures? textures = null, FakeSource? source = null)
     {
         var src = source ?? _source;
@@ -93,7 +95,8 @@ public class OrchestratorTests : IDisposable
             new GuideConfig { GameDomain = "g", GuideModId = 1, GroupNamePattern = "{game} Mod Collection", LinkOverrides = new Dictionary<string, string>(),
                 ManualSteps = new Dictionary<string, IReadOnlyList<string>> { ["LE1"] = ["Do the hair"] } },
             new RunPaths(_library, Path.Combine(_tmp.Path, "cache"), Path.Combine(_tmp.Path, "mem"), _gameRoot, Path.Combine(_tmp.Path, "state.json")),
-            _host);
+            _host,
+            () => _extractorPresent);
     }
 
     private static readonly RunOptions Le1 = new(["LE1"], MinFreeGb: 0);
@@ -143,6 +146,17 @@ public class OrchestratorTests : IDisposable
         Directory.Delete(Path.Combine(_gameRoot, "Game", "ME1"));
         Assert.Equal(RunOutcome.Blocked, (await Build().RunAsync(Le1)).Outcome);
         Assert.Contains(_host.Events, e => e.Message.Contains("game folder not found"));
+    }
+
+    [Fact]
+    public async Task Blocks_with_install_instructions_when_7zip_is_missing()
+    {
+        _extractorPresent = false;
+        var r = await Build().RunAsync(Le1);
+        Assert.Equal(RunOutcome.Blocked, r.Outcome);
+        Assert.Contains(_host.Events, e => e.Kind == RunEventKind.Error && e.Message.Contains("7-Zip is required"));
+        Assert.Empty(_source.Fetched);            // caught before any download
+        Assert.Empty(_memRunner.Calls);
     }
 
     [Fact]

@@ -13,6 +13,8 @@ public sealed class GuideConfig
 
     public string GroupNameFor(string game) => GroupNamePattern.Replace("{game}", game);
 
+    public static GuideConfig LoadDefault() => Parse(EmbeddedData.Read("guide.json"));
+
     public static GuideConfig Load(string path) => Parse(File.ReadAllText(path));
 
     public static GuideConfig Parse(string json)

@@ -19,6 +19,8 @@ public sealed class TextureManifest
     public IReadOnlyList<TextureItem> Items(string game) =>
         _games.TryGetValue(game, out var items) ? items : throw new KeyNotFoundException($"No texture list for {game}");
 
+    public static TextureManifest LoadDefault() => Parse(Orchestration.EmbeddedData.Read("textures.json"));
+
     public static TextureManifest Load(string path) => Parse(File.ReadAllText(path));
 
     public static TextureManifest Parse(string json)

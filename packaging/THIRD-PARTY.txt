@@ -1,0 +1,18 @@
+Third-party software
+====================
+
+Bundled in release packages (folder "7zip"):
+  7-Zip 26.05 console build (https://www.7-zip.org, https://github.com/ip7z/7zip)
+  Copyright (C) Igor Pavlov. Licensed under the GNU LGPL, with the unRAR license restriction.
+  Its own license text is included next to it as 7zip/License.txt.
+  It is only run as a separate program to unpack mod archives.
+
+Downloaded by the application at run time (NOT part of this package; each is subject to its own license and terms):
+  ME3Tweaks Mod Manager (https://github.com/ME3Tweaks/ME3TweaksModManager)
+  Mass Effect Modder, command-line build (https://github.com/MassEffectModder/MassEffectModder)
+  The mods, textures and guide data from Nexus Mods, which you download with your own Premium account.
+
+.NET libraries linked into the application (see each project's license): Avalonia, CommunityToolkit.Mvvm, MonoTorrent,
+SkiaSharp, HarfBuzzSharp, and the .NET runtime.
+
+This tool is not affiliated with or endorsed by ME3Tweaks, Nexus Mods, BioWare or Electronic Arts.

@@ -28,4 +28,19 @@ public static class ApiKeyStore
         }
         throw new ApiKeyException($"No Nexus API key. Set NEXUS_API_KEY or put it in {AppPaths.ConfigDir}{Path.DirectorySeparatorChar}api_key");
     }
+
+    /// <summary>Saves the key to our config file. On Unix the file is created owner-only BEFORE the key is written, so it is never world-readable.</summary>
+    public static string Save(string key) => Save(key, CandidateFiles().First());
+
+    public static string Save(string key, string file)
+    {
+        key = key.Trim();
+        if (key.Length == 0) throw new ApiKeyException("The key is empty");
+        Directory.CreateDirectory(Path.GetDirectoryName(file)!);
+        var options = new FileStreamOptions { Mode = FileMode.Create, Access = FileAccess.Write, Share = FileShare.None };
+        if (!OperatingSystem.IsWindows()) options.UnixCreateMode = UnixFileMode.UserRead | UnixFileMode.UserWrite;
+        using (var fs = new FileStream(file, options)) fs.Write(System.Text.Encoding.UTF8.GetBytes(key));
+        if (!OperatingSystem.IsWindows()) File.SetUnixFileMode(file, UnixFileMode.UserRead | UnixFileMode.UserWrite); // also fixes a pre-existing looser file
+        return file;
+    }
 }

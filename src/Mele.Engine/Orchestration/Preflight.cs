@@ -9,9 +9,15 @@ public sealed record PreflightIssue(bool Blocking, string Message);
 public static class Preflight
 {
     public static async Task<IReadOnlyList<PreflightIssue>> RunAsync(IReadOnlyList<string> games, RunPaths paths, IBackupLocator backups,
-        Func<CancellationToken, Task<NexusUser>> validateAccount, double minFreeGb, CancellationToken ct)
+        Func<CancellationToken, Task<NexusUser>> validateAccount, double minFreeGb, CancellationToken ct, Func<bool>? extractorAvailable = null)
     {
         var issues = new List<PreflightIssue>();
+
+        // Mods come as zip/7z/rar; catching a missing extractor here beats failing halfway through a 100 GB download.
+        if (extractorAvailable != null && !extractorAvailable())
+            issues.Add(new(true, OperatingSystem.IsWindows()
+                ? "7-Zip is required to unpack mods. Install it (for example: winget install 7zip.7zip) and start again."
+                : "7-Zip is required to unpack mods. Install it with your package manager (Arch: 7zip, Debian/Ubuntu: 7zip or p7zip-full) and start again."));
 
         try
         {

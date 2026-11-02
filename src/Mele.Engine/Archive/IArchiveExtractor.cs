@@ -15,9 +15,24 @@ public sealed class SevenZipExtractor : IArchiveExtractor
 {
     private static readonly string[] Candidates = ["7zz", "7z", "7za", "7zr"];
 
-    public static string? FindExecutable()
+    /// <summary>The "7zip" folder shipped next to the application (release packages include 7-Zip's console build there).</summary>
+    public static string DefaultBundledDir =>
+        Path.Combine(Path.GetDirectoryName(Environment.ProcessPath) ?? AppContext.BaseDirectory, "7zip");
+
+    /// <summary>Our bundled copy wins over whatever is on PATH, so behaviour does not depend on the user's 7-Zip version.</summary>
+    public static string? FindExecutable(string? bundledDir = null)
     {
         var exts = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? new[] { ".exe", "" } : new[] { "" };
+
+        foreach (var name in Candidates)
+            foreach (var ext in exts)
+            {
+                var p = Path.Combine(bundledDir ?? DefaultBundledDir, name + ext);
+                if (!File.Exists(p)) continue;
+                EnsureExecutable(p); // zip archives do not carry the Unix execute bit
+                return p;
+            }
+
         var dirs = (Environment.GetEnvironmentVariable("PATH") ?? "").Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries).ToList();
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             dirs.Add(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "7-Zip"));
@@ -29,6 +44,18 @@ public sealed class SevenZipExtractor : IArchiveExtractor
                     if (File.Exists(p)) return p;
                 }
         return null;
+    }
+
+    private static void EnsureExecutable(string path)
+    {
+        if (OperatingSystem.IsWindows()) return;
+        try
+        {
+            var mode = File.GetUnixFileMode(path);
+            if ((mode & UnixFileMode.UserExecute) == 0) File.SetUnixFileMode(path, mode | UnixFileMode.UserExecute | UnixFileMode.GroupExecute | UnixFileMode.OtherExecute);
+        }
+        catch (IOException) { } // read-only install location: if it is not runnable, extraction reports a clear error
+        catch (UnauthorizedAccessException) { }
     }
 
     public async Task ExtractAsync(string archive, string destDir, CancellationToken ct = default)

@@ -1,0 +1,74 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Mele.App.App"
+             RequestedThemeVariant="Default">
+  <Application.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Light">
+          <SolidColorBrush x:Key="CardBrush">#FFFFFF</SolidColorBrush>
+          <SolidColorBrush x:Key="PageBrush">#F3F4F7</SolidColorBrush>
+          <SolidColorBrush x:Key="CardBorderBrush">#DADDE5</SolidColorBrush>
+          <SolidColorBrush x:Key="MutedBrush">#5B6272</SolidColorBrush>
+          <SolidColorBrush x:Key="OkBrush">#1E7B34</SolidColorBrush>
+          <SolidColorBrush x:Key="BadBrush">#B3261E</SolidColorBrush>
+          <SolidColorBrush x:Key="WarnBrush">#8A5A00</SolidColorBrush>
+          <SolidColorBrush x:Key="AccentPanelBrush">#E8F0FE</SolidColorBrush>
+          <SolidColorBrush x:Key="WarnPanelBrush">#FFF4DB</SolidColorBrush>
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Dark">
+          <SolidColorBrush x:Key="CardBrush">#23262E</SolidColorBrush>
+          <SolidColorBrush x:Key="PageBrush">#17191F</SolidColorBrush>
+          <SolidColorBrush x:Key="CardBorderBrush">#3A3F4B</SolidColorBrush>
+          <SolidColorBrush x:Key="MutedBrush">#A3AABB</SolidColorBrush>
+          <SolidColorBrush x:Key="OkBrush">#6FD58A</SolidColorBrush>
+          <SolidColorBrush x:Key="BadBrush">#FF8A80</SolidColorBrush>
+          <SolidColorBrush x:Key="WarnBrush">#F2C46B</SolidColorBrush>
+          <SolidColorBrush x:Key="AccentPanelBrush">#1F2A44</SolidColorBrush>
+          <SolidColorBrush x:Key="WarnPanelBrush">#3A2F14</SolidColorBrush>
+        </ResourceDictionary>
+      </ResourceDictionary.ThemeDictionaries>
+    </ResourceDictionary>
+  </Application.Resources>
+
+  <Application.Styles>
+    <FluentTheme />
+
+    <Style Selector="Border.card">
+      <Setter Property="Background" Value="{DynamicResource CardBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource CardBorderBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="10" />
+      <Setter Property="Padding" Value="18" />
+      <Setter Property="Margin" Value="0,0,0,14" />
+    </Style>
+    <Style Selector="Border.panel">
+      <Setter Property="Background" Value="{DynamicResource AccentPanelBrush}" />
+      <Setter Property="CornerRadius" Value="10" />
+      <Setter Property="Padding" Value="18" />
+      <Setter Property="Margin" Value="0,0,0,12" />
+    </Style>
+    <Style Selector="Border.panel.warn">
+      <Setter Property="Background" Value="{DynamicResource WarnPanelBrush}" />
+    </Style>
+    <Style Selector="TextBlock.h1"><Setter Property="FontSize" Value="24" /><Setter Property="FontWeight" Value="SemiBold" /></Style>
+    <Style Selector="TextBlock.h2"><Setter Property="FontSize" Value="16" /><Setter Property="FontWeight" Value="SemiBold" /></Style>
+    <Style Selector="TextBlock.muted"><Setter Property="Foreground" Value="{DynamicResource MutedBrush}" /></Style>
+    <Style Selector="TextBlock.ok"><Setter Property="Foreground" Value="{DynamicResource OkBrush}" /></Style>
+    <Style Selector="TextBlock.bad"><Setter Property="Foreground" Value="{DynamicResource BadBrush}" /></Style>
+    <Style Selector="TextBlock.warn"><Setter Property="Foreground" Value="{DynamicResource WarnBrush}" /></Style>
+    <Style Selector="ListBoxItem">
+      <Setter Property="Padding" Value="6,2" />
+      <Setter Property="MinHeight" Value="0" />
+    </Style>
+    <Style Selector="Button.primary">
+      <Setter Property="Background" Value="{DynamicResource SystemAccentColor}" />
+      <Setter Property="Foreground" Value="White" />
+      <Setter Property="Padding" Value="22,9" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="Button.primary:disabled /template/ ContentPresenter">
+      <Setter Property="Opacity" Value="0.45" />
+    </Style>
+  </Application.Styles>
+</Application>

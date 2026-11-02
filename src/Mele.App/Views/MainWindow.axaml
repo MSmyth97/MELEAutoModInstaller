@@ -1,0 +1,216 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Mele.App.ViewModels"
+        x:Class="Mele.App.Views.MainWindow"
+        x:DataType="vm:MainViewModel"
+        Title="Mass Effect Legendary Edition - Mod Installer"
+        Width="920" Height="760" MinWidth="720" MinHeight="560"
+        Background="{DynamicResource PageBrush}">
+
+  <Grid RowDefinitions="Auto,*,Auto">
+
+    <!-- Header -->
+    <StackPanel Grid.Row="0" Margin="28,22,28,10" Spacing="2">
+      <TextBlock Classes="h1" Text="Mass Effect Legendary Edition" />
+      <TextBlock Classes="muted" Text="Installs the mods and textures from the Nexus modding guide for you." />
+    </StackPanel>
+
+    <Panel Grid.Row="1">
+
+      <!-- ===================== PAGE 1: SETUP ===================== -->
+      <ScrollViewer IsVisible="{Binding OnSetup}" VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="28,6,28,20">
+
+          <Border Classes="card">
+            <StackPanel Spacing="8">
+              <TextBlock Classes="h2" Text="1. Nexus Mods account" />
+              <TextBlock Classes="muted" TextWrapping="Wrap"
+                         Text="You need a Premium account. Create a personal API key at nexusmods.com (your profile, API keys) and paste it here. It is stored in a file only you can read." />
+              <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                <TextBox Grid.Column="0" Text="{Binding ApiKeyInput}" PasswordChar="●" PlaceholderText="Paste your API key" />
+                <Button Grid.Column="1" Content="Save and check" Command="{Binding SaveKeyCommand}" IsEnabled="{Binding IsIdle}" />
+              </Grid>
+              <TextBlock Text="{Binding KeyStatus}" TextWrapping="Wrap" Classes.ok="{Binding KeyOk}" Classes.muted="{Binding !KeyOk}" />
+            </StackPanel>
+          </Border>
+
+          <Border Classes="card">
+            <StackPanel Spacing="8">
+              <TextBlock Classes="h2" Text="2. Your game" />
+              <TextBlock Classes="muted" TextWrapping="Wrap" Text="The folder that contains 'Game', 'Launcher' and 'Support' (usually called Mass Effect Legendary Edition)." />
+              <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                <TextBox Grid.Column="0" Text="{Binding GameDir}" PlaceholderText="Path to the game folder" />
+                <Button Grid.Column="1" Content="Browse..." Click="OnBrowseGame" />
+              </Grid>
+              <TextBlock Text="{Binding GameDirStatus}" TextWrapping="Wrap" Classes.ok="{Binding GameDirOk}" Classes.bad="{Binding !GameDirOk}" />
+              <StackPanel Orientation="Horizontal" Spacing="22" Margin="0,4,0,0">
+                <CheckBox Content="Mass Effect 1" IsChecked="{Binding Le1}" />
+                <CheckBox Content="Mass Effect 2" IsChecked="{Binding Le2}" />
+                <CheckBox Content="Mass Effect 3" IsChecked="{Binding Le3}" />
+              </StackPanel>
+              <CheckBox Content="Also install the guide's textures (ALOT, ISL and others; large downloads)" IsChecked="{Binding IncludeTextures}" />
+            </StackPanel>
+          </Border>
+
+          <Border Classes="card">
+            <StackPanel Spacing="8">
+              <TextBlock Classes="h2" Text="3. ME3Tweaks Mod Manager" />
+              <TextBlock Classes="muted" TextWrapping="Wrap"
+                         Text="Mod Manager does the actual mod installation. This app downloads it for you and prepares everything it needs." />
+              <TextBlock Text="{Binding M3Status}" TextWrapping="Wrap" Classes.ok="{Binding M3Ready}" Classes.muted="{Binding !M3Ready}" />
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button Content="Set up Mod Manager" Command="{Binding SetupM3Command}" IsEnabled="{Binding IsIdle}" />
+                <Button Content="Open Mod Manager" Command="{Binding LaunchM3Command}" IsEnabled="{Binding M3Ready}" />
+              </StackPanel>
+              <Expander Header="Advanced (Linux)" IsVisible="{Binding IsLinux}">
+                <StackPanel Spacing="6" Margin="0,6,0,0">
+                  <TextBlock Classes="muted" TextWrapping="Wrap"
+                             Text="Mod Manager runs in a Wine/Proton prefix. Leave this empty to let the app create its own. Use an existing prefix (for example a Steam shortcut's) only if Mod Manager is already set up there." />
+                  <TextBox Text="{Binding PrefixDir}" PlaceholderText="Existing prefix folder (optional)" />
+                </StackPanel>
+              </Expander>
+            </StackPanel>
+          </Border>
+
+          <Border Classes="card">
+            <StackPanel Spacing="8">
+              <TextBlock Classes="h2" Text="4. Backups" />
+              <TextBlock Classes="muted" TextWrapping="Wrap"
+                         Text="Texture installs cannot be undone without a backup. In Mod Manager, make a backup of each game you selected (Mod Management, then Backup) before you start." />
+              <ItemsControl ItemsSource="{Binding Backups}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="vm:BackupRow">
+                    <Grid ColumnDefinitions="28,60,*" Margin="0,2">
+                      <TextBlock Grid.Column="0" Text="{Binding Ok, Converter={x:Static vm:Glyphs.Check}}" Classes.ok="{Binding Ok}" Classes.bad="{Binding !Ok}" FontWeight="Bold" />
+                      <TextBlock Grid.Column="1" Text="{Binding Game}" FontWeight="SemiBold" />
+                      <TextBlock Grid.Column="2" Text="{Binding Text}" TextWrapping="Wrap" Classes="muted" />
+                    </Grid>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+              <Button Content="Refresh" Command="{Binding RefreshStatusCommand}" HorizontalAlignment="Left" />
+            </StackPanel>
+          </Border>
+
+          <Border Classes="card" IsVisible="{Binding PlanLines.Count}">
+            <StackPanel Spacing="4">
+              <TextBlock Classes="h2" Text="What would happen" />
+              <ItemsControl ItemsSource="{Binding PlanLines}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="x:String"><TextBlock Text="{Binding}" TextWrapping="Wrap" /></DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </StackPanel>
+          </Border>
+
+          <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,4,0,0">
+            <Button Classes="primary" Content="Start" Command="{Binding StartCommand}" IsEnabled="{Binding CanStart}" />
+            <Button Content="Check first (changes nothing)" Command="{Binding CheckCommand}" IsEnabled="{Binding IsIdle}" />
+            <Button Content="Forget progress (new playthrough)" Command="{Binding StartFreshCommand}" IsEnabled="{Binding IsIdle}" />
+          </StackPanel>
+        </StackPanel>
+      </ScrollViewer>
+
+      <!-- ===================== PAGE 2: RUN ===================== -->
+      <Grid IsVisible="{Binding OnRun}" RowDefinitions="Auto,Auto,Auto,*,Auto" Margin="28,6,28,18">
+        <TextBlock Grid.Row="0" Classes="h2" Text="{Binding CurrentStep}" Margin="0,0,0,10" TextWrapping="Wrap" />
+
+        <Border Grid.Row="1" Classes="panel" IsVisible="{Binding HandoffPending}">
+          <StackPanel Spacing="10">
+            <TextBlock Classes="h2" Text="Your turn: install the mods in Mod Manager" />
+            <TextBlock TextWrapping="Wrap"
+                       Text="Everything is downloaded and ready. In Mod Manager open Batch Mod Installer, load each group below (they are already in its list), and install them one game at a time." />
+            <ItemsControl ItemsSource="{Binding Handoff}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:M3BatchRow"><TextBlock Text="{Binding Display}" /></DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <Button Content="Open Mod Manager" Command="{Binding LaunchM3Command}" />
+              <Button Classes="primary" Content="I have installed them" Command="{Binding HandoffDoneCommand}" />
+              <Button Content="Pause for now" Command="{Binding HandoffPauseCommand}" />
+            </StackPanel>
+          </StackPanel>
+        </Border>
+
+        <Border Grid.Row="2" Classes="panel warn" IsVisible="{Binding TextureQuestionPending}">
+          <StackPanel Spacing="10">
+            <TextBlock Classes="h2" Text="Install textures?" />
+            <TextBlock Text="{Binding TextureQuestion}" TextWrapping="Wrap" />
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <Button Classes="primary" Content="Install textures" Command="{Binding TexturesYesCommand}" />
+              <Button Content="Skip this game" Command="{Binding TexturesNoCommand}" />
+            </StackPanel>
+          </StackPanel>
+        </Border>
+
+        <Border Grid.Row="3" Classes="card" Padding="6" Margin="0,0,0,10">
+          <ListBox x:Name="LogList" ItemsSource="{Binding Log}" Background="Transparent">
+            <ListBox.ItemTemplate>
+              <DataTemplate x:DataType="vm:LogLine">
+                <Grid ColumnDefinitions="88,*">
+                  <TextBlock Grid.Column="0" Text="{Binding Time}" Classes="muted" FontFamily="monospace" />
+                  <TextBlock Grid.Column="1" Text="{Binding Text}" TextWrapping="Wrap"
+                             Classes.bad="{Binding IsError}" Classes.warn="{Binding IsWarning}"
+                             FontWeight="{Binding IsHeading, Converter={x:Static vm:Glyphs.Weight}}" />
+                </Grid>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+        </Border>
+
+        <StackPanel Grid.Row="4" Orientation="Horizontal" Spacing="10">
+          <Button Content="Stop" Command="{Binding CancelCommand}" IsEnabled="{Binding IsBusy}" />
+          <TextBlock Classes="muted" VerticalAlignment="Center" Text="Stopping is safe: run again and it continues where it left off." />
+        </StackPanel>
+      </Grid>
+
+      <!-- ===================== PAGE 3: DONE ===================== -->
+      <ScrollViewer IsVisible="{Binding OnDone}" VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="28,6,28,20" Spacing="12">
+          <Border Classes="card">
+            <StackPanel Spacing="6">
+              <TextBlock Classes="h1" Text="{Binding ResultTitle}" Classes.ok="{Binding ResultOk}" />
+              <TextBlock Text="{Binding ResultDetail}" TextWrapping="Wrap" />
+            </StackPanel>
+          </Border>
+
+          <Border Classes="card" IsVisible="{Binding Notes.Count}">
+            <StackPanel Spacing="4">
+              <TextBlock Classes="h2" Text="Notes" />
+              <ItemsControl ItemsSource="{Binding Notes}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="x:String"><TextBlock Text="{Binding}" TextWrapping="Wrap" /></DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </StackPanel>
+          </Border>
+
+          <Border Classes="card" IsVisible="{Binding ManualSteps.Count}">
+            <StackPanel Spacing="4">
+              <TextBlock Classes="h2" Text="Still to do by hand" />
+              <ItemsControl ItemsSource="{Binding ManualSteps}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="vm:ChecklistItem"><CheckBox Content="{Binding Text}" /></DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </StackPanel>
+          </Border>
+
+          <StackPanel Orientation="Horizontal" Spacing="10">
+            <Button Classes="primary" Content="Back" Command="{Binding BackToSetupCommand}" />
+            <Button Content="Open Mod Manager" Command="{Binding LaunchM3Command}" IsEnabled="{Binding M3Ready}" />
+          </StackPanel>
+        </StackPanel>
+      </ScrollViewer>
+    </Panel>
+
+    <!-- Busy bar -->
+    <Border Grid.Row="2" Padding="28,8" IsVisible="{Binding IsBusy}" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource CardBorderBrush}">
+      <StackPanel Orientation="Horizontal" Spacing="12">
+        <ProgressBar IsIndeterminate="True" Width="120" />
+        <TextBlock Text="{Binding BusyText}" VerticalAlignment="Center" Classes="muted" />
+      </StackPanel>
+    </Border>
+  </Grid>
+</Window>

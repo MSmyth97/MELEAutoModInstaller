@@ -11,4 +11,10 @@
     <PackageReference Include="MonoTorrent" Version="3.0.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- The guide's data ships inside the assembly so a packaged app needs no files next to it. -->
+    <EmbeddedResource Include="..\..\guide.json" LogicalName="guide.json" />
+    <EmbeddedResource Include="..\..\textures.json" LogicalName="textures.json" />
+  </ItemGroup>
+
 </Project>

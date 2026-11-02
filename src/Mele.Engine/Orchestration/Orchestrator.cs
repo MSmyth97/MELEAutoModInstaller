@@ -49,12 +49,13 @@ public sealed class Orchestrator(
     Func<CancellationToken, Task<NexusUser>> validateAccount,
     GuideConfig guide,
     RunPaths paths,
-    IRunHost host)
+    IRunHost host,
+    Func<bool>? extractorAvailable = null)
 {
     /// <summary>Read-only: what a run would do right now.</summary>
     public async Task<RunPlan> PlanAsync(RunOptions opts, CancellationToken ct = default)
     {
-        var issues = await Preflight.RunAsync(opts.Games, paths, backups, validateAccount, opts.MinFreeGb, ct);
+        var issues = await Preflight.RunAsync(opts.Games, paths, backups, validateAccount, opts.MinFreeGb, ct, extractorAvailable);
         if (issues.Any(i => i.Blocking)) return new RunPlan(issues, []);
         var groups = await guideSource.FetchAsync(opts.Games, ct);
         var state = RunState.Load(paths.StateFile);
@@ -79,7 +80,7 @@ public sealed class Orchestrator(
 
         // 1. Checks. Nothing has been changed yet.
         Step("Checks", null, RunEventKind.StepStarted, "Checking account, game folders, backups and disk space");
-        var issues = await Preflight.RunAsync(opts.Games, paths, backups, validateAccount, opts.MinFreeGb, ct);
+        var issues = await Preflight.RunAsync(opts.Games, paths, backups, validateAccount, opts.MinFreeGb, ct, extractorAvailable);
         foreach (var i in issues) Step("Checks", null, i.Blocking ? RunEventKind.Error : RunEventKind.Warning, i.Message);
         if (issues.Any(i => i.Blocking)) { notes.Add("Blocked by the checks above; nothing was changed."); return Done(RunOutcome.Blocked); }
         Step("Checks", null, RunEventKind.StepFinished, "OK");
