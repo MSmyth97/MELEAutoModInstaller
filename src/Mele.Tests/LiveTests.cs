@@ -1,6 +1,8 @@
 using System.IO.Compression;
 using Mele.Engine.Archive;
 using Mele.Engine.Download;
+using Mele.Engine.Mem;
+using Mele.Engine.Platform;
 using Mele.Engine.Nexus;
 using Mele.Engine.Textures;
 
@@ -64,5 +66,52 @@ public class LiveTests
         foreach (var f in Directory.EnumerateFiles(root, "*", SearchOption.AllDirectories))
             r[Path.GetRelativePath(root, f).Replace('\\', '/')] = await Downloader.Md5Async(f);
         return r;
+    }
+
+    private static string PrefixPath => Environment.GetEnvironmentVariable("MELE_PREFIX")
+        ?? "/home/matt/.local/share/Steam/steamapps/compatdata/2199358105";
+    private static string GameRoot => Environment.GetEnvironmentVariable("MELE_GAME")
+        ?? "/home/matt/Games/Mass Effect Legendary Edition";
+
+    [LiveFact]
+    public void Backup_locator_finds_the_real_m3_backups()
+    {
+        var prefix = WinePrefix.Find(PrefixPath) ?? throw new DirectoryNotFoundException(PrefixPath);
+        var loc = new WinePrefixBackupLocator(prefix);
+        foreach (var g in new[] { "LE1", "LE2", "LE3" })
+        {
+            var b = loc.Get(g);
+            Console.WriteLine($"{g}: {b.Path} -> {b.Reason}");
+            Assert.True(b.Valid, $"{g}: {b.Reason}");
+        }
+    }
+
+    [LiveFact]
+    public async Task Native_mem_downloads_runs_and_reads_the_game_read_only()
+    {
+        if (OperatingSystem.IsWindows()) return;
+        using var tmp = new TempDir();
+        var runner = new ProcessRunner();
+        // Isolated config dir: MEM writes its game path to ~/.config; don't touch the user's real one.
+        var env = new Dictionary<string, string> { ["XDG_CONFIG_HOME"] = Path.Combine(tmp.Path, "cfg") };
+
+        var exe = await new MemUpdater(new HttpClient(), new SevenZipExtractor(), runner, Path.Combine(tmp.Path, "mem"))
+            .EnsureAsync(new Progress<string>(Console.WriteLine));
+        var mem = new MemRunner(runner, exe, env);
+        var version = await mem.VersionAsync();
+        Console.WriteLine($"MEM version {version}");
+        Assert.True(version > 500);
+
+        Assert.True(await mem.SetGamePathAsync("LE1", GameRoot));
+        var lines = new List<string>();
+        Assert.Equal(0, await runner.RunAsync(exe, ["--get-game-paths"], lines.Add, env));
+        Assert.Contains(lines, l => l.Contains(GameRoot));
+
+        // read-only: lists files without texture markers; installs nothing
+        var check = new List<string>();
+        var rc = await runner.RunAsync(exe, ["--check-game-data-after", "--gameid", "1"], check.Add, env);
+        Console.WriteLine($"check-game-data-after exit={rc}, {check.Count} lines, last: {check.LastOrDefault(l => l.Length > 0)}");
+        Assert.Equal(0, rc);
+        Assert.Contains(check, l => l.Contains("Finished checking"));
     }
 }
