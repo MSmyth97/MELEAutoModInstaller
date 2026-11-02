@@ -6,6 +6,7 @@ using Mele.Engine.Mem;
 using Mele.Engine.Nexus;
 using Mele.Engine.Pipeline;
 using Mele.Engine.Platform;
+using Mele.Engine.Provision;
 using Mele.Engine.Stage;
 using Mele.Engine.Textures;
 
@@ -16,6 +17,9 @@ const string Usage = """
     install  <group.biq2>... --library DIR [--cache DIR] [--jobs N] [--only TEXT] [--link "Mod=URL"] [--keep-archives] [--dry-run]
     textures <textures.json> --library DIR [--mem-root DIR] [--cache DIR] [--game LE1] [--only TEXT] [--keep-archives]
     backups  [--prefix DIR]                                        show M3's vanilla backups (--prefix = Wine/Proton prefix, Linux)
+    m3 setup  [--prefix-dir DIR]   download Mod Manager (and, on Linux, create the app's own Proton prefix for it)
+    m3 status [--prefix-dir DIR]
+    m3 launch [--prefix-dir DIR]
     mem update
     mem install --game LE1|LE2|LE3 --mfl FILE --game-dir DIR [--prefix DIR]   installs textures; refuses without valid backups
 
@@ -38,10 +42,11 @@ try
         "textures" => await Textures(o, rest, cts.Token),
         "backups" => Backups(o),
         "mem" => await Mem(o, rest, cts.Token),
+        "m3" => await M3(o, rest, cts.Token),
         _ => Fail($"unknown command '{cmd}'\n\n{Usage}"),
     };
 }
-catch (Exception e) when (e is ArgumentException or ApiKeyException or NexusException or MemUpdateException or FileNotFoundException or InvalidDataException or OperationCanceledException)
+catch (Exception e) when (e is ProvisionException or ArgumentException or ApiKeyException or NexusException or MemUpdateException or FileNotFoundException or InvalidDataException or OperationCanceledException)
 {
     Console.Error.WriteLine($"error: {e.Message}");
     return 2;
@@ -203,5 +208,54 @@ static async Task<int> Mem(Opts o, List<string> sub, CancellationToken ct)
             return result.Success ? 0 : 1;
         default:
             return Fail("mem needs a subcommand: update | install");
+    }
+}
+
+static (ProtonPrefix? Prefix, string M3Home) M3Location(Opts o)
+{
+    if (OperatingSystem.IsWindows())
+        return (null, Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "ME3TweaksModManager"));
+    var prefix = new ProtonPrefix(o.Get("prefix-dir") ?? ProtonPrefix.DefaultRoot, new ProcessRunner());
+    return (prefix, prefix.M3Home);
+}
+
+static async Task<int> M3(Opts o, List<string> sub, CancellationToken ct)
+{
+    var (prefix, home) = M3Location(o);
+    var status = new Progress<string>(Console.WriteLine);
+    using var http = new HttpClient { Timeout = Timeout.InfiniteTimeSpan };
+    var m3 = new M3Installer(http, new SevenZipExtractor(), home);
+    switch (sub.FirstOrDefault())
+    {
+        case "setup":
+            if (prefix != null)
+            {
+                Console.WriteLine($"Proton prefix: {prefix.Root}");
+                await prefix.EnsureAsync(null, ct);
+                m3 = new M3Installer(http, new SevenZipExtractor(), prefix.M3Home); // the profile folder exists only after the prefix does
+            }
+            await m3.EnsureAsync(status, ct);
+            Console.WriteLine($"Mod Manager: {m3.ExePath}\nMod library: {m3.LibraryPath}");
+            if (prefix != null) Console.WriteLine("In Mod Manager, point it at your game with the Z: drive, e.g. Z:\\home\\you\\Games\\Mass Effect Legendary Edition");
+            return 0;
+        case "status":
+            Console.WriteLine($"Mod Manager: {(m3.IsInstalled ? m3.ExePath : "not installed")}");
+            if (prefix != null) Console.WriteLine($"Prefix: {prefix.Root} ({(prefix.IsInitialized ? "ready" : "not created")}), umu-run: {ProtonPrefix.FindUmu() ?? "NOT FOUND"}");
+            return m3.IsInstalled ? 0 : 1;
+        case "launch":
+            if (!m3.IsInstalled) return Fail("Mod Manager is not installed; run: mele m3 setup");
+            if (prefix == null)
+            {
+                using var p = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(m3.ExePath) { UseShellExecute = true })!;
+                await p.WaitForExitAsync(ct);
+            }
+            else
+            {
+                using var p = prefix.LaunchM3(m3.ExePath);
+                await p.WaitForExitAsync(ct);
+            }
+            return 0;
+        default:
+            return Fail("m3 needs a subcommand: setup | status | launch");
     }
 }

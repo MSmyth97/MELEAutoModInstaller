@@ -3,6 +3,7 @@ using Mele.Engine.Archive;
 using Mele.Engine.Download;
 using Mele.Engine.Mem;
 using Mele.Engine.Platform;
+using Mele.Engine.Provision;
 using Mele.Engine.Nexus;
 using Mele.Engine.Textures;
 
@@ -130,5 +131,28 @@ public class LiveTests
             Assert.Equal(theirs.Mods.Select(m => (m.Name, m.ModDescRelPath, m.ModDescMd5, m.ModDescSize, m.ModId, m.FileId)),
                          mine.Mods.Select(m => (m.Name, m.ModDescRelPath, m.ModDescMd5, m.ModDescSize, m.ModId, m.FileId)));
         }
+    }
+
+    [LiveFact]
+    public async Task Fresh_proton_prefix_gets_m3_and_m3_stays_up()
+    {
+        if (OperatingSystem.IsWindows() || ProtonPrefix.FindUmu() == null) return;
+        using var tmp = new TempDir();
+        var runner = new ProcessRunner();
+        var prefix = new ProtonPrefix(Path.Combine(tmp.Path, "prefix"), runner);
+        await prefix.EnsureAsync(Console.WriteLine);
+        Assert.True(prefix.IsInitialized);
+
+        var m3 = new M3Installer(new HttpClient { Timeout = Timeout.InfiniteTimeSpan }, new SevenZipExtractor(), prefix.M3Home);
+        await m3.EnsureAsync(new Progress<string>(Console.WriteLine));
+        Assert.True(new FileInfo(m3.ExePath).Length > 100_000_000);
+
+        // M3 is a GUI: a healthy start means it is still running well after launch (a missing runtime component makes it exit at once).
+        using var proc = prefix.LaunchM3(m3.ExePath);
+        await Task.Delay(TimeSpan.FromSeconds(45));
+        var alive = !proc.HasExited;
+        Console.WriteLine($"M3 still running after 45 s: {alive}");
+        try { proc.Kill(entireProcessTree: true); } catch (InvalidOperationException) { }
+        Assert.True(alive, "Mod Manager exited during startup in the fresh prefix");
     }
 }
