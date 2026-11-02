@@ -206,6 +206,7 @@ public class OrchestratorTests : IDisposable
         var failing = new FakeSource(_ => throw new NexusException("HTTP 403"));
         var r = await Build(source: failing).RunAsync(Le1);
         Assert.Equal(RunOutcome.ContentFailed, r.Outcome);
+        Assert.Contains(r.Notes, n => n.Contains("HTTP 403"));   // names the reason, not just a count
         Assert.Empty(_textures.Prepared);
         Assert.Empty(_host.Log);
         Assert.Empty(_memRunner.Calls);

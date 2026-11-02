@@ -113,6 +113,7 @@ public sealed class Orchestrator(
             if (failed.Count > 0)
             {
                 notes.Add($"{game}: {failed.Count} mod(s) failed to download or stage; re-run to retry (finished mods are skipped).");
+                foreach (var f in failed) notes.Add($"{game}: {f.Mod.Name}: {f.Note}");
                 return Done(RunOutcome.ContentFailed);
             }
             foreach (var m in results.Where(r => r.Status == ContentStatus.NeedsManualDownload))
@@ -138,6 +139,7 @@ public sealed class Orchestrator(
                 if (!r.Success)
                 {
                     notes.Add($"{game}: texture preparation failed; re-run to retry (finished items are skipped).");
+                    foreach (var f in r.Items.Where(i => i.Status == TextureStatus.Failed)) notes.Add($"{game}: {f.Name}: {f.Note}");
                     state.Save(paths.StateFile);
                     return Done(RunOutcome.TexturesFailed);
                 }

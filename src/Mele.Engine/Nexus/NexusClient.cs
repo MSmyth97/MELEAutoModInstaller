@@ -6,7 +6,11 @@ namespace Mele.Engine.Nexus;
 public sealed class NexusException(string message) : Exception(message);
 
 public sealed record NexusUser(string Name, bool IsPremium);
-public sealed record NexusFileInfo(int FileId, string FileName, string Name, long SizeInBytes, string? Md5, string Category);
+public sealed record NexusFileInfo(int FileId, string FileName, string Name, long SizeInBytes, string? Md5, string Category, bool SizeIsRounded = false)
+{
+    /// <summary>True when the file's real size is within a KB of <see cref="SizeInBytes"/> (Nexus gave only <c>size_kb</c>).</summary>
+    public bool SizeMatches(long actual) => SizeInBytes <= 0 || (SizeIsRounded ? Math.Abs(actual - SizeInBytes) < 1024 : actual == SizeInBytes);
+}
 
 /// <summary>Minimal Nexus Mods API v1 client. Premium accounts get download links without an nxm key.</summary>
 public sealed class NexusClient
@@ -67,7 +71,8 @@ public sealed class NexusClient
         f.TryGetProperty("size_in_bytes", out var s) && s.ValueKind == JsonValueKind.Number ? s.GetInt64()
             : f.TryGetProperty("size_kb", out var kb) && kb.ValueKind == JsonValueKind.Number ? kb.GetInt64() * 1024 : 0,
         f.TryGetProperty("md5", out var m) && m.ValueKind == JsonValueKind.String ? m.GetString()!.ToLowerInvariant() : null,
-        f.TryGetProperty("category_name", out var c) && c.ValueKind == JsonValueKind.String ? c.GetString() ?? "" : "");
+        f.TryGetProperty("category_name", out var c) && c.ValueKind == JsonValueKind.String ? c.GetString() ?? "" : "",
+        !(f.TryGetProperty("size_in_bytes", out var exact) && exact.ValueKind == JsonValueKind.Number));
 
     private async Task<JsonDocument> GetAsync(string path, CancellationToken ct)
     {

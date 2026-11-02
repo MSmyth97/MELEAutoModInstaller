@@ -59,7 +59,7 @@ public sealed class Downloader(NexusClient nexus, HttpClient cdn, string cacheDi
         }
 
         var size = new FileInfo(part).Length;
-        if (info.SizeInBytes > 0 && size != info.SizeInBytes)
+        if (!info.SizeMatches(size))
         {
             File.Delete(part);
             throw new NexusException($"File {fileId}: size mismatch (got {size}, want {info.SizeInBytes})");

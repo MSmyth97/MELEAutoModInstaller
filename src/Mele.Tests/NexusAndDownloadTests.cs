@@ -71,4 +71,20 @@ public class NexusAndDownloadTests
         Assert.Null(dl.FindCached(12218));
         Assert.Empty(Directory.EnumerateFiles(tmp.Path, "*.part", SearchOption.AllDirectories));
     }
+
+    [Theory]
+    [InlineData(1024, true)]  // advertised as 1 KB
+    [InlineData(1900, true)]  // Nexus rounds down, so the real file can be up to 1023 bytes bigger
+    [InlineData(2048, false)] // clearly the wrong file
+    public async Task Size_given_only_in_kb_is_accepted_within_the_rounding_gap(int actualBytes, bool accepted)
+    {
+        using var tmp = new TempDir();
+        const string kbOnly = """{"file_id":12218,"file_name":"a.7z","name":"A","size_kb":1,"category_name":"MAIN"}""";
+        var nexus = new FakeHandler().On("files/12218.json", kbOnly).On("download_link.json", """[{"URI":"https://cdn.example/x.7z"}]""");
+        var cdn = new FakeHandler().On(_ => true, _ => new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(new byte[actualBytes]) });
+        var dl = new Downloader(Client(nexus), new HttpClient(cdn), tmp.Path);
+
+        if (accepted) Assert.Equal(FetchResult.Downloaded, (await dl.FetchAsync("g", 23, 12218)).Result);
+        else await Assert.ThrowsAsync<NexusException>(() => dl.FetchAsync("g", 23, 12218));
+    }
 }

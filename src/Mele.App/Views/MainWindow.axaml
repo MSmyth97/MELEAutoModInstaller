@@ -89,6 +89,8 @@
                 </ItemsControl.ItemTemplate>
               </ItemsControl>
               <Button Content="Refresh" Command="{Binding RefreshStatusCommand}" HorizontalAlignment="Left" />
+              <TextBlock Classes="muted" TextWrapping="Wrap" IsVisible="{Binding IsLinux}"
+                         Text="Just added or made a backup but it does not show? On Linux, Wine writes its registry to disk after a short delay. Wait a few seconds, or close Mod Manager, then press Refresh." />
             </StackPanel>
           </Border>
 

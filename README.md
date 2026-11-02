@@ -31,7 +31,7 @@ Automates the busywork of the [Mass Effect Legendary Edition modding guide](http
 1. Download the package for your system from the Releases page, unpack it, and run `MELEAutoModInstaller` (`.exe` on Windows).
 2. **Nexus account:** paste your API key and press *Save and check*.
 3. **Your game:** choose the game folder and tick the games you want. Untick textures if you only want the mods.
-4. **Mod Manager:** press *Set up Mod Manager* (downloads it; on Linux also creates the Proton prefix). Open it, add your game (on Linux, give Mod Manager the path through the `Z:` drive, e.g. `Z:\home\you\Games\Mass Effect Legendary Edition`), and **make a backup of each game**. Back in this app, *Refresh* under Backups.
+4. **Mod Manager:** press *Set up Mod Manager* (downloads it; on Linux also creates the Proton prefix). Open it, add your game (on Linux, use the `Z:` drive, which is the whole filesystem, e.g. `Z:\home\you\Games\Mass Effect Legendary Edition\Game\ME1`; note `X:` in the app's prefix is your home folder, so `X:\home\you\…` is wrong), and **make a backup of each game**. Back in this app, *Refresh* under Backups.
 5. Press **Check first** if you want a read-only preview, then **Start**.
 6. When it says *Your turn*, open Mod Manager's **Batch Mod Installer**, load the listed groups (they are already in its list) and install them one game at a time. Press *I have installed them*.
 7. Confirm the texture install when asked. It takes 15 to 40 minutes per game.
@@ -76,6 +76,9 @@ mele check | install | textures                         lower-level steps (see `
 - **"umu-launcher (umu-run) is required"** (Linux) – install it with your package manager. If Mod Manager is already set up in another prefix, point the app at it under *Advanced* (or `--prefix`).
 - **"no valid Mod Manager backup"** – make the backup in Mod Manager, then *Refresh*. The backup must be one Mod Manager recorded; the app reads that record (the registry on Windows, the prefix's `user.reg` on Linux).
 - **Mod Manager does not start on Linux / wine version mismatch** – do not run a Steam/Proton game from the same prefix at the same time; its wineserver blocks other Proton versions in that prefix.
+- **Wrong path in Mod Manager (Linux)** – the prefix maps `Z:` to `/` and `X:` to your home folder. `Z:\home\you\Games\…` and `X:\Games\…` are the same place; `X:\home\you\Games\…` does not exist. Mod Manager does not warn you; it just does nothing.
+- **Mod Manager's "Restore to target" does nothing on Linux** – its Linux restore runs an `rsync` script that hides errors and always reports success. If the game folder is unchanged after a restore, restore by hand from your backup with the same command Mod Manager meant to run: `rsync -a --delete --exclude cmm_vanilla "<backup>/" "<game>/Game/ME1/"` (change `ME1` for other games; `-n` first for a dry run). Mod Manager backups made this way may be missing some game files (e.g. `BioGame/Content/Packages/ISACT` for LE1); compare with `rsync -an --delete` first and add `--exclude` for anything the backup lacks, or `--delete` removes it from the game. ME3Tweaks do not support Linux, so this is not reported upstream.
+- **Mod Manager says "Texture mods are installed" before the batch install** – the game is not vanilla. Restore it first (see above); the app does not yet detect this for you.
 - **"MEM failed"** – restore the game from your Mod Manager backup if it misbehaves, then retry. The log shows MEM's own output.
 - **A mod is "InstalledVersionDiffers"** – the guide pins a file and Nexus now serves a newer build with a different `moddesc.ini`. It was still installed; check the mod's page if something is off.
 
