@@ -53,4 +53,5 @@ jobs:
           files: |
             dist/*.tar.gz
             dist/*.zip
+          draft: true
           generate_release_notes: true
