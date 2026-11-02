@@ -1,0 +1,1337 @@
+{
+  "game": "LE3",
+  "description": "My updated LE3 Mod Collection.",
+  "restorebeforeinstall": false,
+  "mods": [
+    {
+      "moddescpath": "LE3\\LE3 Community Patch & Framework\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:30:42.0693152+02:00",
+      "moddeschash": "fbdda37f8870485a91f9717c15c09c9c",
+      "moddescsize": 2998,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/13?tab=files&file_id=13154",
+      "userchosenoptions": [],
+      "allchosenoptions": [
+        "889B1823",
+        "39AC4138",
+        "0ED9AC44"
+      ],
+      "haschosenoptions": true,
+      "IsStandalone": false,
+      "modname": "LE3 Community Patch & Framework"
+    },
+    {
+      "moddescpath": "LE3\\Appearance Modification Menu\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:30:54.3000238+02:00",
+      "moddeschash": "a18f942571e77f0b834c7b2ca3b556a7",
+      "moddescsize": 731,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/694?tab=files&file_id=5435",
+      "userchosenoptions": [],
+      "allchosenoptions": [],
+      "haschosenoptions": true,
+      "IsStandalone": true,
+      "modname": "Appearance Modification Menu"
+    },
+    {
+      "moddescpath": "LE3\\Allow Extra Talent Points\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:30:59.5382712+02:00",
+      "moddeschash": "a7c36f204063252759ec1afb6ee0c7cb",
+      "moddescsize": 475,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/882?tab=files&file_id=3280",
+      "userchosenoptions": [],
+      "allchosenoptions": [],
+      "haschosenoptions": true,
+      "IsStandalone": true,
+      "modname": "Allow Extra Talent Points"
+    },
+    {
+      "moddescpath": "LE3\\WiredTexan's Level Rewards (LE3)\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:31:05.0901417+02:00",
+      "moddeschash": "6632a1842a6dc9eb290236fa29a1c02d",
+      "moddescsize": 6583,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/887?tab=files&file_id=3489",
+      "userchosenoptions": [],
+      "allchosenoptions": [
+        "11E1B7C7"
+      ],
+      "haschosenoptions": true,
+      "IsStandalone": false,
+      "modname": "WiredTexan's Level Rewards (LE3)"
+    },
+    {
+      "moddescpath": "LE3\\Shepard Can Agree With Anderson\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:31:05.1682804+02:00",
+      "moddeschash": "114fa8a4fc7a548863f7f4a934f4881a",
+      "moddescsize": 391,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/1013?tab=files&file_id=8762",
+      "userchosenoptions": [],
+      "allchosenoptions": [],
+      "haschosenoptions": true,
+      "IsStandalone": true,
+      "modname": "Shepard Can Agree With Anderson"
+    },
+    {
+      "moddescpath": "LE3\\Admiral Daro'Xen Restored\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:31:05.3583298+02:00",
+      "moddeschash": "9865f20df3baec2cec5970300dabbe22",
+      "moddescsize": 415,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/717?tab=files&file_id=2490",
+      "userchosenoptions": [],
+      "allchosenoptions": [],
+      "haschosenoptions": true,
+      "IsStandalone": true,
+      "modname": "Admiral Daro'Xen Restored"
+    },
+    {
+      "moddescpath": "LE3\\Kirrahe Makes Good\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:31:05.431928+02:00",
+      "moddeschash": "c2040dd8341f2243dcbc4dffa47059b9",
+      "moddescsize": 517,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/691?tab=files&file_id=2670",
+      "userchosenoptions": [],
+      "allchosenoptions": [],
+      "haschosenoptions": true,
+      "IsStandalone": true,
+      "modname": "Kirrahe Makes Good"
+    },
+    {
+      "moddescpath": "LE3\\Miranda Butt Shot Restoration LE3\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:31:05.6124254+02:00",
+      "moddeschash": "1f8f23183e934bda69474b4ada861688",
+      "moddescsize": 548,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/392?tab=files&file_id=4284",
+      "userchosenoptions": [],
+      "allchosenoptions": [],
+      "haschosenoptions": true,
+      "IsStandalone": true,
+      "modname": "Miranda Butt Shot Restoration LE3"
+    },
+    {
+      "moddescpath": "LE3\\Quiet Interrupts - LE3\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:31:07.1932483+02:00",
+      "moddeschash": "ab4d9990576d179c5082f00e4b47e1f8",
+      "moddescsize": 1198,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/518?tab=files&file_id=2683",
+      "userchosenoptions": [],
+      "allchosenoptions": [
+        "1A7AFA16"
+      ],
+      "haschosenoptions": true,
+      "IsStandalone": false,
+      "modname": "Quiet Interrupts - LE3"
+    },
+    {
+      "moddescpath": "LE3\\No Requisition Markup\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:31:08.2090365+02:00",
+      "moddeschash": "3342072851b66b9a19ebebf59dac4621",
+      "moddescsize": 450,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/1400?tab=files&file_id=5796",
+      "userchosenoptions": [],
+      "allchosenoptions": [],
+      "haschosenoptions": true,
+      "IsStandalone": true,
+      "modname": "No Requisition Markup"
+    },
+    {
+      "moddescpath": "LE3\\Unrestricted Weapon Upgrades\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:31:08.3150652+02:00",
+      "moddeschash": "624edabf326f379135d4b4ae1b63fe68",
+      "moddescsize": 368,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/622?tab=files&file_id=2196",
+      "userchosenoptions": [],
+      "allchosenoptions": [],
+      "haschosenoptions": true,
+      "IsStandalone": true,
+      "modname": "Unrestricted Weapon Upgrades"
+    },
+    {
+      "moddescpath": "LE3\\LE3 Improved Functionality\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:31:08.5747536+02:00",
+      "moddeschash": "04c3daab536372c1835383a5a9ee6af5",
+      "moddescsize": 765,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/2843?tab=files&file_id=11783",
+      "userchosenoptions": [],
+      "allchosenoptions": [],
+      "haschosenoptions": true,
+      "IsStandalone": true,
+      "modname": "LE3 Improved Functionality"
+    },
+    {
+      "moddescpath": "LE3\\N7 Warmaster (LE3)\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:31:33.0942122+02:00",
+      "moddeschash": "5fad4bd8f735f444a29d4a87742f39c2",
+      "moddescsize": 4654,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/1901?tab=files&file_id=11872",
+      "userchosenoptions": [],
+      "allchosenoptions": [
+        "4CB908EA",
+        "EF7F924F",
+        "712E3DB8"
+      ],
+      "haschosenoptions": true,
+      "IsStandalone": false,
+      "modname": "N7 Warmaster (LE3)"
+    },
+    {
+      "moddescpath": "LE3\\Combat SFX Overhaul LE3\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:31:54.2849812+02:00",
+      "moddeschash": "f906bdad3fa10b4c28b09cabd47b89ae",
+      "moddescsize": 2752,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/2876?tab=files&file_id=11859",
+      "userchosenoptions": [
+        {
+          "IsPlus": true,
+          "Key": "59066A24",
+          "OriginalValue": "59066A24"
+        },
+        {
+          "IsPlus": true,
+          "Key": "5A833872",
+          "OriginalValue": "5A833872"
+        },
+        {
+          "IsPlus": true,
+          "Key": "F91EDED8",
+          "OriginalValue": "F91EDED8"
+        }
+      ],
+      "allchosenoptions": [
+        "59066A24",
+        "5A833872",
+        "F91EDED8"
+      ],
+      "haschosenoptions": true,
+      "IsStandalone": false,
+      "modname": "Combat SFX Overhaul LE3"
+    },
+    {
+      "moddescpath": "LE3\\Vendor Pricing Overhaul\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:31:55.9260453+02:00",
+      "moddeschash": "28a90984579801dc5b66cd82204fc736",
+      "moddescsize": 2110,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/743?tab=files&file_id=3321",
+      "userchosenoptions": [],
+      "allchosenoptions": [
+        "3A0DF788"
+      ],
+      "haschosenoptions": true,
+      "IsStandalone": false,
+      "modname": "Vendor Pricing Overhaul"
+    },
+    {
+      "moddescpath": "LE3\\Unlimited Sprint\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:31:56.0257666+02:00",
+      "moddeschash": "c0f6e912b3db32b3332d0c238058e656",
+      "moddescsize": 342,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/337?tab=files&file_id=6989",
+      "userchosenoptions": [],
+      "allchosenoptions": [],
+      "haschosenoptions": true,
+      "IsStandalone": true,
+      "modname": "Unlimited Sprint"
+    },
+    {
+      "moddescpath": "LE3\\Storm Improvements\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:31:58.9111031+02:00",
+      "moddeschash": "2197a0d9dcfd99add3a83c5cb43f93c3",
+      "moddescsize": 3044,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/626?tab=files&file_id=2211",
+      "userchosenoptions": [
+        {
+          "IsPlus": false,
+          "Key": "59C1A9F5",
+          "OriginalValue": "59C1A9F5"
+        }
+      ],
+      "allchosenoptions": [
+        "BD2400D7",
+        "060A2355",
+        "DF5889AA",
+        "C71629C1",
+        "DD9E73D7"
+      ],
+      "haschosenoptions": true,
+      "IsStandalone": false,
+      "modname": "Storm Improvements"
+    },
+    {
+      "moddescpath": "LE3\\Crouch Mod\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:32:04.2213572+02:00",
+      "moddeschash": "f1e8eac31562ef4a09c2b19b119dc7f2",
+      "moddescsize": 2986,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/2426?tab=files&file_id=11877",
+      "userchosenoptions": [],
+      "allchosenoptions": [
+        "1CB130CC"
+      ],
+      "haschosenoptions": true,
+      "IsStandalone": false,
+      "modname": "Crouch Mod"
+    },
+    {
+      "moddescpath": "LE3\\LE3 Improved Photo Mode\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:32:10.8055556+02:00",
+      "moddeschash": "9028702ffcbe5080496fb45de99a5906",
+      "moddescsize": 1998,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/424?tab=files&file_id=11870",
+      "userchosenoptions": [],
+      "allchosenoptions": [
+        "82901B8A",
+        "6A3B134F",
+        "C7D94450",
+        "4242E601"
+      ],
+      "haschosenoptions": true,
+      "IsStandalone": false,
+      "modname": "LE3 Improved Photo Mode"
+    },
+    {
+      "moddescpath": "LE3\\Vignette Remover\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:32:12.6027012+02:00",
+      "moddeschash": "0fd81b17f4c59a6be978d4521de29176",
+      "moddescsize": 448,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/428?tab=files&file_id=12714",
+      "userchosenoptions": [],
+      "allchosenoptions": [],
+      "haschosenoptions": true,
+      "IsStandalone": true,
+      "modname": "Vignette Remover"
+    },
+    {
+      "moddescpath": "LE3\\Myriad Pro Begone (LE3)\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:32:14.036641+02:00",
+      "moddeschash": "200b4b452829cf836251fa4d153a7a33",
+      "moddescsize": 981,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/1070?tab=files&file_id=12151",
+      "userchosenoptions": [],
+      "allchosenoptions": [],
+      "haschosenoptions": true,
+      "IsStandalone": false,
+      "modname": "Myriad Pro Begone (LE3)"
+    },
+    {
+      "moddescpath": "LE3\\Expanded Galaxy Mod (LE)\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:32:18.3728057+02:00",
+      "moddeschash": "0994d27115d25ef6cea4c5fc98bee602",
+      "moddescsize": 18051,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/422?tab=files&file_id=13159",
+      "userchosenoptions": [],
+      "allchosenoptions": [
+        "40CB52EC",
+        "3C552D16",
+        "D0DB2884",
+        "175DF112",
+        "AF4F9E53",
+        "FBBDC5B1"
+      ],
+      "haschosenoptions": true,
+      "IsStandalone": false,
+      "modname": "Expanded Galaxy Mod (LE)"
+    },
+    {
+      "moddescpath": "LE3\\N7 A Spectre's Gift\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:32:22.0698436+02:00",
+      "moddeschash": "5a3ec9917918d8c488c0fc43b302cd66",
+      "moddescsize": 515,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/1956?tab=files&file_id=8908",
+      "userchosenoptions": [],
+      "allchosenoptions": [],
+      "haschosenoptions": true,
+      "IsStandalone": true,
+      "modname": "N7: A Spectre's Gift"
+    },
+    {
+      "moddescpath": "LE3\\WiredTexan's Shorter Notifications (LE3)\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:32:26.5731901+02:00",
+      "moddeschash": "ada3e7127c759b9b20c2d207034c4b08",
+      "moddescsize": 4329,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/803?tab=files&file_id=3517",
+      "userchosenoptions": [
+        {
+          "IsPlus": true,
+          "Key": "CE6266A1",
+          "OriginalValue": "CE6266A1"
+        }
+      ],
+      "allchosenoptions": [
+        "CE6266A1"
+      ],
+      "haschosenoptions": true,
+      "IsStandalone": false,
+      "modname": "WiredTexan's Shorter Notifications (LE3)"
+    },
+    {
+      "moddescpath": "LE3\\Citadel Epilogue Mod (FULL)\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:32:26.6557418+02:00",
+      "moddeschash": "f94f13a2c15d8a79af548ccd196867c7",
+      "moddescsize": 731,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/1018?tab=files&file_id=13772",
+      "userchosenoptions": [],
+      "allchosenoptions": [],
+      "haschosenoptions": true,
+      "IsStandalone": true,
+      "modname": "Citadel Epilogue Mod (FULL)"
+    },
+    {
+      "moddescpath": "LE3\\Audemus' Happy Ending Mod\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:32:27.2091856+02:00",
+      "moddeschash": "978debda4bd0ee4775b2b161b6d791b3",
+      "moddescsize": 869,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/323?tab=files&file_id=13847",
+      "userchosenoptions": [],
+      "allchosenoptions": [],
+      "haschosenoptions": true,
+      "IsStandalone": true,
+      "modname": "Audemus' Happy Ending Mod"
+    },
+    {
+      "moddescpath": "LE3\\Character Consistency Project\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:32:29.4252916+02:00",
+      "moddeschash": "24bc4888a03aa2d9f67dcf24edb013c8",
+      "moddescsize": 5900,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/910?tab=files&file_id=6625",
+      "userchosenoptions": [],
+      "allchosenoptions": [
+        "A42BF780",
+        "350FD93D",
+        "9B13B465",
+        "E71743D4",
+        "E5F2211F",
+        "FF1789B1",
+        "ECC86E2F",
+        "369F1C51",
+        "964C973F",
+        "F8C99CC0",
+        "B6E8D71D",
+        "D693FDEA",
+        "1F0F5E2D",
+        "3E3A6075",
+        "CF4511E9",
+        "D2179B58",
+        "1400AE09",
+        "2FC775FB"
+      ],
+      "haschosenoptions": true,
+      "IsStandalone": false,
+      "modname": "Character Consistency Project"
+    },
+    {
+      "moddescpath": "LE3\\FISH (Plus Kelly)\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:32:31.2243236+02:00",
+      "moddeschash": "e628df9fe109ece9a325044a3c202d01",
+      "moddescsize": 742,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/386?tab=files&file_id=12757",
+      "userchosenoptions": [],
+      "allchosenoptions": [
+        "B00A72C3"
+      ],
+      "haschosenoptions": true,
+      "IsStandalone": false,
+      "modname": "FISH (Plus Kelly)"
+    },
+    {
+      "moddescpath": "LE3\\Datapad App Messages Expanded\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:32:31.3063966+02:00",
+      "moddeschash": "caa2b7a8c619eb82634d45b1df3a807a",
+      "moddescsize": 402,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/2790?tab=files&file_id=12469",
+      "userchosenoptions": [],
+      "allchosenoptions": [],
+      "haschosenoptions": true,
+      "IsStandalone": true,
+      "modname": "Datapad App Messages Expanded"
+    },
+    {
+      "moddescpath": "LE3\\Apartment Additions\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:32:31.4800374+02:00",
+      "moddeschash": "317911d3715bbd98308e11a7cded6c9c",
+      "moddescsize": 516,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/1598?tab=files&file_id=6466",
+      "userchosenoptions": [],
+      "allchosenoptions": [],
+      "haschosenoptions": true,
+      "IsStandalone": true,
+      "modname": "Apartment Additions"
+    },
+    {
+      "moddescpath": "LE3\\All Bonus Powers\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:32:31.5862833+02:00",
+      "moddeschash": "8327fc6654dca218dc14809bee8a662d",
+      "moddescsize": 383,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/491?tab=files&file_id=1739",
+      "userchosenoptions": [],
+      "allchosenoptions": [],
+      "haschosenoptions": true,
+      "IsStandalone": true,
+      "modname": "All Bonus Powers"
+    },
+    {
+      "moddescpath": "LE3\\Free Respec\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:32:31.7731024+02:00",
+      "moddeschash": "a9ddb2d1d86ea97f787e765850a0d5c2",
+      "moddescsize": 377,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/571?tab=files&file_id=2000",
+      "userchosenoptions": [],
+      "allchosenoptions": [],
+      "haschosenoptions": true,
+      "IsStandalone": true,
+      "modname": "Free Respec"
+    },
+    {
+      "moddescpath": "LE3\\No Shotgun Firing Delay\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:32:31.8381372+02:00",
+      "moddeschash": "e49b680c63e03677492cbf3afc126f82",
+      "moddescsize": 284,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/591?tab=files&file_id=2113",
+      "userchosenoptions": [],
+      "allchosenoptions": [],
+      "haschosenoptions": true,
+      "IsStandalone": true,
+      "modname": "No Shotgun Firing Delay"
+    },
+    {
+      "moddescpath": "LE3\\Shepard Movement Animation Replacer\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:32:45.82803+02:00",
+      "moddeschash": "8b418dbb6da7c5cd3ed90edc65690f60",
+      "moddescsize": 3821,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/841?tab=files&file_id=5371",
+      "userchosenoptions": [
+        {
+          "IsPlus": true,
+          "Key": "B32972CD",
+          "OriginalValue": "B32972CD"
+        },
+        {
+          "IsPlus": true,
+          "Key": "AB34078F",
+          "OriginalValue": "AB34078F"
+        }
+      ],
+      "allchosenoptions": [
+        "AB34078F"
+      ],
+      "haschosenoptions": true,
+      "IsStandalone": false,
+      "modname": "Shepard Movement Animation Replacer"
+    },
+    {
+      "moddescpath": "LE3\\Holster Mod\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:32:57.6112862+02:00",
+      "moddeschash": "f3c216d578bd4d931817d9f33749f274",
+      "moddescsize": 13210,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/2991?tab=files&file_id=12381",
+      "userchosenoptions": [],
+      "allchosenoptions": [
+        "49CB07CE",
+        "6081F142",
+        "4A0CDFED",
+        "FE92B190"
+      ],
+      "haschosenoptions": true,
+      "IsStandalone": false,
+      "modname": "Holster Mod"
+    },
+    {
+      "moddescpath": "LE3\\Combat Evades for LE3\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:33:11.7228111+02:00",
+      "moddeschash": "9a85928e4a2276d20f4b903ee1b3e1c9",
+      "moddescsize": 1923,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/2992?tab=files&file_id=12271",
+      "userchosenoptions": [],
+      "allchosenoptions": [
+        "C256F249"
+      ],
+      "haschosenoptions": true,
+      "IsStandalone": false,
+      "modname": "Combat Evades for LE3"
+    },
+    {
+      "moddescpath": "LE3\\Zoom Remover (LE3)\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:33:13.3367084+02:00",
+      "moddeschash": "e9d08723fa2cefe094f48c902c7d6f8f",
+      "moddescsize": 400,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/1279?tab=files&file_id=7616",
+      "userchosenoptions": [],
+      "allchosenoptions": [],
+      "haschosenoptions": true,
+      "IsStandalone": true,
+      "modname": "Zoom Remover (LE3)"
+    },
+    {
+      "moddescpath": "LE3\\More Weapon Mods\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:33:15.7800489+02:00",
+      "moddeschash": "dfcf965e84cc83a7ee37daaf83dd594d",
+      "moddescsize": 1091,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/2407?tab=files&file_id=12458",
+      "userchosenoptions": [
+        {
+          "IsPlus": true,
+          "Key": "C9367230",
+          "OriginalValue": "C9367230"
+        }
+      ],
+      "allchosenoptions": [
+        "C9367230"
+      ],
+      "haschosenoptions": true,
+      "IsStandalone": false,
+      "modname": "More Weapon Mods"
+    },
+    {
+      "moddescpath": "LE3\\Vortex Experimental Assault Rifle\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:33:29.2892258+02:00",
+      "moddeschash": "ae2e8c1c41d347128af870ca10513e7a",
+      "moddescsize": 398,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/2568?tab=files&file_id=10737",
+      "userchosenoptions": [],
+      "allchosenoptions": [],
+      "haschosenoptions": true,
+      "IsStandalone": true,
+      "modname": "Vortex: Experimental Assault Rifle"
+    },
+    {
+      "moddescpath": "LE3\\Combined Ammo Mod (LE3)\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:33:31.2395157+02:00",
+      "moddeschash": "57f8ece481f22cd06b0eb0fddd4bed70",
+      "moddescsize": 1917,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/1819?tab=files&file_id=7845",
+      "userchosenoptions": [
+        {
+          "IsPlus": true,
+          "Key": "31364A6B",
+          "OriginalValue": "31364A6B"
+        }
+      ],
+      "allchosenoptions": [
+        "31364A6B"
+      ],
+      "haschosenoptions": true,
+      "IsStandalone": false,
+      "modname": "Combined Ammo Mod (LE3)"
+    },
+    {
+      "moddescpath": "LE3\\Harbinger Overhaul Mod\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:33:40.2050247+02:00",
+      "moddeschash": "84751a5d580a87a4aa8aca60d40ac68e",
+      "moddescsize": 373,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/711?tab=files&file_id=10785",
+      "userchosenoptions": [],
+      "allchosenoptions": [],
+      "haschosenoptions": true,
+      "IsStandalone": true,
+      "modname": "Harbinger Overhaul Mod"
+    },
+    {
+      "moddescpath": "LE3\\Expanded Universe - Mod Menu\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:33:40.2810348+02:00",
+      "moddeschash": "a30ea94613cc7a37dd263b807cbdc76e",
+      "moddescsize": 523,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/1824?tab=files&file_id=8130",
+      "userchosenoptions": [],
+      "allchosenoptions": [],
+      "haschosenoptions": true,
+      "IsStandalone": true,
+      "modname": "Expanded Universe - Mod Menu"
+    },
+    {
+      "moddescpath": "LE3\\Reworked Kai Leng\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:33:48.1571989+02:00",
+      "moddeschash": "1db3a54c5cff2507e58eb8ec6061ad8d",
+      "moddescsize": 1552,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/1038?tab=files&file_id=11821",
+      "userchosenoptions": [
+        {
+          "IsPlus": true,
+          "Key": "258A1070",
+          "OriginalValue": "258A1070"
+        },
+        {
+          "IsPlus": true,
+          "Key": "04F889F4",
+          "OriginalValue": "04F889F4"
+        }
+      ],
+      "allchosenoptions": [
+        "258A1070",
+        "04F889F4"
+      ],
+      "haschosenoptions": true,
+      "IsStandalone": false,
+      "modname": "Reworked Kai Leng"
+    },
+    {
+      "moddescpath": "LE3\\Miranda Mod (LE3)\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:33:53.411339+02:00",
+      "moddeschash": "31ca2fa6ccf323a9e9c2541581dcbcb7",
+      "moddescsize": 4401,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/1350?tab=files&file_id=11836",
+      "userchosenoptions": [
+        {
+          "IsPlus": true,
+          "Key": "16FC271E",
+          "OriginalValue": "16FC271E"
+        },
+        {
+          "IsPlus": true,
+          "Key": "DAED7FFE",
+          "OriginalValue": "DAED7FFE"
+        }
+      ],
+      "allchosenoptions": [
+        "D9561B62",
+        "A11D911B",
+        "6D533C50",
+        "13F477CD",
+        "56EA7B31",
+        "53BEF5EA",
+        "E1D0B124",
+        "16FC271E",
+        "DAED7FFE",
+        "289239BD"
+      ],
+      "haschosenoptions": true,
+      "IsStandalone": false,
+      "modname": "Miranda Mod (LE3)"
+    },
+    {
+      "moddescpath": "LE3\\LE3 Diversification Project\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:33:57.7966064+02:00",
+      "moddeschash": "79c3f0dcf61029b24e74e6271974d073",
+      "moddescsize": 2176,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/1174?tab=files&file_id=12236",
+      "userchosenoptions": [
+        {
+          "IsPlus": true,
+          "Key": "890D91D4",
+          "OriginalValue": "890D91D4"
+        }
+      ],
+      "allchosenoptions": [
+        "890D91D4",
+        "B6663AB2",
+        "2E37A71B",
+        "58D13268",
+        "57CC7475"
+      ],
+      "haschosenoptions": true,
+      "IsStandalone": false,
+      "modname": "LE3 Diversification Project"
+    },
+    {
+      "moddescpath": "LE3\\Omega Hub\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:34:08.5120336+02:00",
+      "moddeschash": "b762676bdea69edc070453a0a6d87636",
+      "moddescsize": 866,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/1597?tab=files&file_id=11736",
+      "userchosenoptions": [
+        {
+          "IsPlus": true,
+          "Key": "10B60E97",
+          "OriginalValue": "10B60E97"
+        }
+      ],
+      "allchosenoptions": [
+        "10B60E97"
+      ],
+      "haschosenoptions": true,
+      "IsStandalone": false,
+      "modname": "Omega Hub"
+    },
+    {
+      "moddescpath": "LE3\\Spectre Expansion Mod\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:34:10.8090273+02:00",
+      "moddeschash": "f90dd06a000da67ebe4170e2eec9a57f",
+      "moddescsize": 1274,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/15?tab=files&file_id=12331",
+      "userchosenoptions": [
+        {
+          "IsPlus": true,
+          "Key": "3E145C50",
+          "OriginalValue": "3E145C50"
+        }
+      ],
+      "allchosenoptions": [
+        "3E145C50",
+        "9D18710F"
+      ],
+      "haschosenoptions": true,
+      "IsStandalone": false,
+      "modname": "Spectre Expansion Mod"
+    },
+    {
+      "moddescpath": "LE3\\Cerberus Retrofits\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:34:13.2901989+02:00",
+      "moddeschash": "efac889bac32e16bd84e2ac2f78d4cd4",
+      "moddescsize": 1714,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/709?tab=files&file_id=12244",
+      "userchosenoptions": [],
+      "allchosenoptions": [
+        "9D18710F",
+        "9B9266EF",
+        "11253F56"
+      ],
+      "haschosenoptions": true,
+      "IsStandalone": false,
+      "modname": "Cerberus Retrofits"
+    },
+    {
+      "moddescpath": "LE3\\Geth Retrofits\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:34:16.1022222+02:00",
+      "moddeschash": "0e8e34e48a1a1dc7f1f1d13061f11187",
+      "moddescsize": 1439,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/847?tab=files&file_id=11738",
+      "userchosenoptions": [],
+      "allchosenoptions": [
+        "F86D2B57",
+        "9D18710F"
+      ],
+      "haschosenoptions": true,
+      "IsStandalone": false,
+      "modname": "Geth Retrofits"
+    },
+    {
+      "moddescpath": "LE3\\Reaper Retrofits\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:34:17.7112336+02:00",
+      "moddeschash": "db11dbc795551e608bd114c1e1c351be",
+      "moddescsize": 1312,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/833?tab=files&file_id=11740",
+      "userchosenoptions": [],
+      "allchosenoptions": [
+        "9D18710F",
+        "11253F56"
+      ],
+      "haschosenoptions": true,
+      "IsStandalone": false,
+      "modname": "Reaper Retrofits"
+    },
+    {
+      "moddescpath": "LE3\\Take Earth Back\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:34:19.2373823+02:00",
+      "moddeschash": "14b3f099a0097e5b762e3ebf9da94b70",
+      "moddescsize": 973,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/16?tab=files&file_id=10779",
+      "userchosenoptions": [],
+      "allchosenoptions": [
+        "31C9861D"
+      ],
+      "haschosenoptions": true,
+      "IsStandalone": false,
+      "modname": "Take Earth Back"
+    },
+    {
+      "moddescpath": "LE3\\Leviathan Retrofits\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:34:22.0724804+02:00",
+      "moddeschash": "7dfad250c1bb7adf63cb491d071a48c0",
+      "moddescsize": 994,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/2445?tab=files&file_id=10438",
+      "userchosenoptions": [],
+      "allchosenoptions": [
+        "F14A7994",
+        "37BF4E88"
+      ],
+      "haschosenoptions": true,
+      "IsStandalone": false,
+      "modname": "Leviathan Retrofits"
+    },
+    {
+      "moddescpath": "LE3\\Armax Expansion Mod\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:34:22.3031122+02:00",
+      "moddeschash": "ead8b460d9b09ea8707a825aa6025e25",
+      "moddescsize": 520,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/1269?tab=files&file_id=10441",
+      "userchosenoptions": [],
+      "allchosenoptions": [],
+      "haschosenoptions": true,
+      "IsStandalone": true,
+      "modname": "Armax Expansion Mod"
+    },
+    {
+      "moddescpath": "LE3\\CAT6 Retrofits\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:34:23.4274455+02:00",
+      "moddeschash": "009696d9de013100852754c1bc55fb5a",
+      "moddescsize": 1507,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/2410?tab=files&file_id=11737",
+      "userchosenoptions": [],
+      "allchosenoptions": [
+        "B4ED51EE",
+        "F14A7994",
+        "37BF4E88"
+      ],
+      "haschosenoptions": true,
+      "IsStandalone": false,
+      "modname": "CAT6 Retrofits"
+    },
+    {
+      "moddescpath": "LE3\\Immersive Thessia Mod\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:34:36.0130036+02:00",
+      "moddeschash": "23313e0c199c5a8abc63d343f33bd5ff",
+      "moddescsize": 3319,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/2215?tab=files&file_id=11977",
+      "userchosenoptions": [
+        {
+          "IsPlus": true,
+          "Key": "6E948760",
+          "OriginalValue": "6E948760"
+        },
+        {
+          "IsPlus": false,
+          "Key": "6E948760",
+          "OriginalValue": "6E948760"
+        },
+        {
+          "IsPlus": true,
+          "Key": "4E2EB49A",
+          "OriginalValue": "4E2EB49A"
+        },
+        {
+          "IsPlus": true,
+          "Key": "E7921A01",
+          "OriginalValue": "E7921A01"
+        }
+      ],
+      "allchosenoptions": [
+        "4E2EB49A",
+        "E7921A01"
+      ],
+      "haschosenoptions": true,
+      "IsStandalone": false,
+      "modname": "Immersive Thessia Mod"
+    },
+    {
+      "moddescpath": "LE3\\Oriana looks like Miranda's Twin (ME3LE)\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:34:37.9880241+02:00",
+      "moddeschash": "516bed9720c4f2fb7ed09f0387784643",
+      "moddescsize": 2958,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/430?tab=files&file_id=2637",
+      "userchosenoptions": [],
+      "allchosenoptions": [
+        "E42D995D"
+      ],
+      "haschosenoptions": true,
+      "IsStandalone": false,
+      "modname": "Oriana looks like Miranda's Twin (ME3LE)"
+    },
+    {
+      "moddescpath": "LE3\\Unique Kahlee Sanders\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:34:38.1016526+02:00",
+      "moddeschash": "720148bef50d55938703f0e13e662eb1",
+      "moddescsize": 1234,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/1175?tab=files&file_id=13014",
+      "userchosenoptions": [],
+      "allchosenoptions": [],
+      "haschosenoptions": true,
+      "IsStandalone": true,
+      "modname": "Unique Kahlee Sanders"
+    },
+    {
+      "moddescpath": "LE3\\Fleet Admiral Steven Hackett Restored\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:34:38.3260638+02:00",
+      "moddeschash": "c73fbc48d6b398ee1a997e9d11218e70",
+      "moddescsize": 632,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/1184?tab=files&file_id=4241",
+      "userchosenoptions": [],
+      "allchosenoptions": [],
+      "haschosenoptions": true,
+      "IsStandalone": true,
+      "modname": "Fleet Admiral Steven Hackett Restored"
+    },
+    {
+      "moddescpath": "LE3\\Alliance Vehicle Consistency (LE3)\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:34:40.1042023+02:00",
+      "moddeschash": "7b0e1a98e1c0d16450cc30aab5d8bb4e",
+      "moddescsize": 1065,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/2997?tab=files&file_id=12715",
+      "userchosenoptions": [],
+      "allchosenoptions": [
+        "64DFAF45",
+        "6EAD0952"
+      ],
+      "haschosenoptions": true,
+      "IsStandalone": false,
+      "modname": "Alliance Vehicle Consistency (LE3)"
+    },
+    {
+      "moddescpath": "LE3\\Ashley Consistency Project (MELE3)\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:35:03.1239856+02:00",
+      "moddeschash": "27069d2987c928e81e2003bb8371d6d7",
+      "moddescsize": 13766,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/1209?tab=files&file_id=9163",
+      "userchosenoptions": [
+        {
+          "IsPlus": true,
+          "Key": "08D98F7C",
+          "OriginalValue": "08D98F7C"
+        }
+      ],
+      "allchosenoptions": [
+        "08D98F7C",
+        "B111F7F1",
+        "9FC1FC35"
+      ],
+      "haschosenoptions": true,
+      "IsStandalone": false,
+      "modname": "Ashley Consistency Project (MELE3)"
+    },
+    {
+      "moddescpath": "LE3\\Kasumi Eye Tweak LE3\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:35:03.3729104+02:00",
+      "moddeschash": "9fc4ec237cc917bff4ab96b27a27bf12",
+      "moddescsize": 366,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/1484?tab=files&file_id=8691",
+      "userchosenoptions": [],
+      "allchosenoptions": [],
+      "haschosenoptions": true,
+      "IsStandalone": true,
+      "modname": "Kasumi Eye Tweak LE3"
+    },
+    {
+      "moddescpath": "LE3\\Easy Pull-up Competition\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:35:10.8662665+02:00",
+      "moddeschash": "774d1e1a523bfa46d9e273672208187d",
+      "moddescsize": 1783,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/1241?tab=files&file_id=6393",
+      "userchosenoptions": [],
+      "allchosenoptions": [
+        "F248F8A2"
+      ],
+      "haschosenoptions": true,
+      "IsStandalone": false,
+      "modname": "Easy Pull-up Competition"
+    },
+    {
+      "moddescpath": "LE3\\Call Your Mom\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:35:10.9750968+02:00",
+      "moddeschash": "3984077508d300553aa42609701c325f",
+      "moddescsize": 398,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/2480?tab=files&file_id=10092",
+      "userchosenoptions": [],
+      "allchosenoptions": [],
+      "haschosenoptions": true,
+      "IsStandalone": true,
+      "modname": "Call Your Mom"
+    },
+    {
+      "moddescpath": "LE3\\LE3 Opening Remaster\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:35:13.9745612+02:00",
+      "moddeschash": "bea523d7e72aeed0e3c6c6b6550b7dad",
+      "moddescsize": 907,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/19?tab=files&file_id=13491",
+      "userchosenoptions": [],
+      "allchosenoptions": [
+        "4F6D5C37"
+      ],
+      "haschosenoptions": true,
+      "IsStandalone": false,
+      "modname": "LE3 Opening Remaster"
+    },
+    {
+      "moddescpath": "LE3\\Pinnacle Station Apartment (LE3)\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:35:14.2019181+02:00",
+      "moddeschash": "17e89c17ae16501586d79d4e9311530d",
+      "moddescsize": 453,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/1588?tab=files&file_id=10521",
+      "userchosenoptions": [],
+      "allchosenoptions": [],
+      "haschosenoptions": true,
+      "IsStandalone": true,
+      "modname": "Pinnacle Station Apartment (LE3)"
+    },
+    {
+      "moddescpath": "LE3\\Mordin Lives\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:35:19.8295723+02:00",
+      "moddeschash": "a190c53ef3115bb78110019ad1c41f66",
+      "moddescsize": 1109,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/2649?tab=files&file_id=12282",
+      "userchosenoptions": [
+        {
+          "IsPlus": true,
+          "Key": "CB21299B",
+          "OriginalValue": "CB21299B"
+        },
+        {
+          "IsPlus": true,
+          "Key": "31C9861D",
+          "OriginalValue": "31C9861D"
+        }
+      ],
+      "allchosenoptions": [
+        "CB21299B",
+        "31C9861D"
+      ],
+      "haschosenoptions": true,
+      "IsStandalone": false,
+      "modname": "Mordin Lives"
+    },
+    {
+      "moddescpath": "LE3\\Kelly Returns\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:35:23.7888112+02:00",
+      "moddeschash": "c9607021f12552557954615a64d38dac",
+      "moddescsize": 1327,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/2463?tab=files&file_id=12283",
+      "userchosenoptions": [
+        {
+          "IsPlus": true,
+          "Key": "CB21299B",
+          "OriginalValue": "CB21299B"
+        },
+        {
+          "IsPlus": true,
+          "Key": "F3D0A720",
+          "OriginalValue": "F3D0A720"
+        }
+      ],
+      "allchosenoptions": [
+        "CB21299B",
+        "F3D0A720"
+      ],
+      "haschosenoptions": true,
+      "IsStandalone": false,
+      "modname": "Kelly Returns"
+    },
+    {
+      "moddescpath": "LE3\\Virmire Savior Mod\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:35:26.243837+02:00",
+      "moddeschash": "c1efc1f13b8154cb405d65ca8cb29230",
+      "moddescsize": 1881,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/1442?tab=files&file_id=11893",
+      "userchosenoptions": [],
+      "allchosenoptions": [
+        "90E39A50",
+        "F26C198E",
+        "F3D0A720",
+        "24BE037B"
+      ],
+      "haschosenoptions": true,
+      "IsStandalone": false,
+      "modname": "Virmire Savior Mod"
+    },
+    {
+      "moddescpath": "LE3\\No Movement Penalty During Rannoch Boss Fight\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:35:28.4718881+02:00",
+      "moddeschash": "310a030f1265f1ce1f1c5caa28bfbdf2",
+      "moddescsize": 815,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/1156?tab=files&file_id=6039",
+      "userchosenoptions": [],
+      "allchosenoptions": [],
+      "haschosenoptions": true,
+      "IsStandalone": false,
+      "modname": "No Movement Penalty During Rannoch Boss Fight"
+    },
+    {
+      "moddescpath": "LE3\\Smoother GUI (LE3)\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:35:31.5679265+02:00",
+      "moddeschash": "015a008efce0071a1666238903087736",
+      "moddescsize": 11497,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/2123?tab=files&file_id=12372",
+      "userchosenoptions": [],
+      "allchosenoptions": [
+        "70D1EE49",
+        "RealLE3DP",
+        "RealMyriad3EGM",
+        "VXT",
+        "RealMyriad",
+        "FakeMyriad",
+        "FakeNoneSmaller",
+        "FakeNoneInterf",
+        "FakeLE3DP",
+        "FakeMyriad3EGM",
+        "FakeVXT"
+      ],
+      "haschosenoptions": true,
+      "IsStandalone": false,
+      "modname": "Smoother GUI (LE3)"
+    },
+    {
+      "moddescpath": "LE3\\No Loading Icon & Text\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:35:43.4824623+02:00",
+      "moddeschash": "804cbe82d93d3fc64dce70d6e6f2049b",
+      "moddescsize": 1052,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/798?tab=files&file_id=4250",
+      "userchosenoptions": [],
+      "allchosenoptions": [
+        "75C02ACC"
+      ],
+      "haschosenoptions": true,
+      "IsStandalone": false,
+      "modname": "No Loading Icon & Text"
+    },
+    {
+      "moddescpath": "LE3\\HUD Enhancements\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:35:50.8477018+02:00",
+      "moddeschash": "9ea0e42672efa8e82eb17aa99af84ccd",
+      "moddescsize": 1326,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/1942?tab=files&file_id=7802",
+      "userchosenoptions": [],
+      "allchosenoptions": [
+        "BEA28602"
+      ],
+      "haschosenoptions": true,
+      "IsStandalone": false,
+      "modname": "HUD Enhancements"
+    },
+    {
+      "moddescpath": "LE3\\A Lot of Videos for LE3\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:35:53.1750264+02:00",
+      "moddeschash": "620df3f8e9c9637d24876b4b980d5b04",
+      "moddescsize": 627,
+      "downloadlink": null,
+      "userchosenoptions": [],
+      "allchosenoptions": [],
+      "haschosenoptions": true,
+      "IsStandalone": true,
+      "modname": "A Lot of Videos for LE3"
+    },
+    {
+      "moddescpath": "LE3\\More Hair for Femshep (ME3LE)\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:36:42.6170582+02:00",
+      "moddeschash": "6e245eb2f0985566f54530872021aabc",
+      "moddescsize": 1031,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/493?tab=files&file_id=4154",
+      "userchosenoptions": [],
+      "allchosenoptions": [],
+      "haschosenoptions": true,
+      "IsStandalone": true,
+      "modname": "More Hair for Femshep (ME3LE)"
+    },
+    {
+      "moddescpath": "LE3\\Even More Hairs LE3\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:36:42.7032694+02:00",
+      "moddeschash": "ee1cd94c68eafff70a1934e6a7c31d31",
+      "moddescsize": 305,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/503?tab=files&file_id=4086",
+      "userchosenoptions": [],
+      "allchosenoptions": [],
+      "haschosenoptions": true,
+      "IsStandalone": true,
+      "modname": "Even More Hairs LE3"
+    },
+    {
+      "moddescpath": "LE3\\Morning's Hairstyles for FemShepLE3\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:36:42.897007+02:00",
+      "moddeschash": "b45af011a555e9cbf6872d82b285fc67",
+      "moddescsize": 440,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/726?tab=files&file_id=7749",
+      "userchosenoptions": [],
+      "allchosenoptions": [],
+      "haschosenoptions": true,
+      "IsStandalone": true,
+      "modname": "Morning's Hairstyles for FemShepLE3"
+    },
+    {
+      "moddescpath": "LE3\\Morning's Hairstyles for FemShep LE3 PT2\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:36:42.9989784+02:00",
+      "moddeschash": "ec30cedab1c58830a4464dd4ce83134b",
+      "moddescsize": 522,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/1075?tab=files&file_id=7750",
+      "userchosenoptions": [],
+      "allchosenoptions": [],
+      "haschosenoptions": true,
+      "IsStandalone": true,
+      "modname": "Morning's Hairstyles for FemShep LE3 PT2"
+    },
+    {
+      "moddescpath": "LE3\\New Hairstyles for MShep - MELE3\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:36:43.2135134+02:00",
+      "moddeschash": "683be0d787418e1b557ce3bc4ae01fd9",
+      "moddescsize": 401,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/686?tab=files&file_id=2841",
+      "userchosenoptions": [],
+      "allchosenoptions": [],
+      "haschosenoptions": true,
+      "IsStandalone": true,
+      "modname": "New Hairstyles for MShep - MELE3"
+    },
+    {
+      "moddescpath": "LE3\\Morning's Hairstyles for MaleShep LE3\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:36:43.3093863+02:00",
+      "moddeschash": "0e1e560c162ee154e7071e1afe72d0a2",
+      "moddescsize": 418,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/727?tab=files&file_id=7224",
+      "userchosenoptions": [],
+      "allchosenoptions": [],
+      "haschosenoptions": true,
+      "IsStandalone": true,
+      "modname": "Morning's Hairstyles for MaleShep LE3"
+    },
+    {
+      "moddescpath": "LE3\\EGM Armors for LE3\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:36:45.6557417+02:00",
+      "moddeschash": "760237083a24ceeb85d444b38642cf6a",
+      "moddescsize": 2126,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/187?tab=files&file_id=10095",
+      "userchosenoptions": [],
+      "allchosenoptions": [
+        "BC2D8CDE"
+      ],
+      "haschosenoptions": true,
+      "IsStandalone": false,
+      "modname": "EGM Armors for LE3"
+    },
+    {
+      "moddescpath": "LE3\\Kitsumi's Modded Casual Outfit Top Tank Short and Larger\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:36:46.0800359+02:00",
+      "moddeschash": "0a05113bd3d5af4a11864aff646d7cef",
+      "moddescsize": 673,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/547?tab=files&file_id=1933",
+      "userchosenoptions": [],
+      "allchosenoptions": [],
+      "haschosenoptions": true,
+      "IsStandalone": true,
+      "modname": "Kitsumi's Modded Casual Outfit Top Tank Short and Larger"
+    },
+    {
+      "moddescpath": "LE3\\Zeb's T-Shirt & Leggings (MELE3)\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:36:46.2565133+02:00",
+      "moddeschash": "6394a12210cfb6aa6457145a4182f9fc",
+      "moddescsize": 538,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/660?tab=files&file_id=2331",
+      "userchosenoptions": [],
+      "allchosenoptions": [],
+      "haschosenoptions": true,
+      "IsStandalone": true,
+      "modname": "Zeb's T-Shirt & Leggings (MELE3)"
+    },
+    {
+      "moddescpath": "LE3\\Morning's Cool Outfits for Femshep LE3\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:36:47.7958217+02:00",
+      "moddeschash": "ff72ba02c595ae103c00b18999e16a0c",
+      "moddescsize": 1055,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/2405?tab=files&file_id=9908",
+      "userchosenoptions": [],
+      "allchosenoptions": [
+        "DD3E3F80"
+      ],
+      "haschosenoptions": true,
+      "IsStandalone": false,
+      "modname": "Morning's Cool Outfits for Femshep LE3"
+    },
+    {
+      "moddescpath": "LE3\\Catsuits for Female Shepard\\moddesc.ini",
+      "configurationtime": "2026-09-21T13:36:47.982092+02:00",
+      "moddeschash": "4d59b42a7e6574287d9dc0d73cbc0d05",
+      "moddescsize": 352,
+      "downloadlink": "https://nexusmods.com/masseffectlegendaryedition/mods/1139?tab=files&file_id=4049",
+      "userchosenoptions": [],
+      "allchosenoptions": [],
+      "haschosenoptions": true,
+      "IsStandalone": true,
+      "modname": "Catsuits for Female Shepard"
+    }
+  ],
+  "asimods": [
+    {
+      "updategroup": 31,
+      "version": 2
+    },
+    {
+      "updategroup": 46,
+      "version": 2
+    },
+    {
+      "updategroup": 87,
+      "version": 4
+    }
+  ],
+  "texturemodfiles": [],
+  "queuename": "LE3 Mod Collection (2026) - 2.0.1",
+  "ImporterDescription": "Mods that will be installed by install group:\r\n\nImporting will add this install group to Batch Installer. This does not import any of the listed mods."
+}

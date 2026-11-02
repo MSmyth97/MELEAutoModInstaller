@@ -1,0 +1,157 @@
+{
+  "_comment": "Texture section of Nexus guide 1127 (v2.0.1). Install order = list order. 'm3to' items stage into the M3 library like content mods; 'mem' items are extracted to the cache for import into M3. Main files only, per the guide.",
+  "game_domain": "masseffectlegendaryedition",
+  "torrent": {
+    "mod_id": 363,
+    "file_id": 12950
+  },
+  "LE1": [
+    {
+      "name": "ALOT for LE1",
+      "type": "m3to",
+      "mod_id": 363,
+      "file_id": 13763
+    },
+    {
+      "name": "Improved Static Lighting (ISL) for LE1",
+      "type": "m3to",
+      "torrent_member": "ImprovedStaticLightingforLE1_2021.1.0.7z"
+    },
+    {
+      "name": "LEUITM",
+      "type": "mem",
+      "mod_id": 1825,
+      "file_id": 7296,
+      "select": [
+        "AllianceUniformsLEUITM.mem",
+        "AsariLE1DPCompatLEUITM.mem",
+        "AvinaLEUITM.mem",
+        "BatarianLEUITM.mem",
+        "ConsortDressLEUITM.mem",
+        "GarrusArmorCSecLogoLEUITM.mem",
+        "KrogansLEUITM.mem",
+        "NoveriaFrostedGlassLEUITM.mem",
+        "SalariansLEUITM.mem",
+        "VFXFixesLEUITM.mem",
+        "VirmireHDSandsLEUITM.mem",
+        "WrexBattleHardenedLEUITM.mem"
+      ]
+    },
+    {
+      "name": "Primitives - All in One Install (LE1)",
+      "type": "mem",
+      "mod_id": 22,
+      "file_id": 9690
+    },
+    {
+      "name": "GTFET Full Version (LE1)",
+      "type": "mem",
+      "mod_id": 1072,
+      "file_id": 5968
+    },
+    {
+      "name": "Liara and Others Arm Patch Gibberish Replacer",
+      "type": "mem",
+      "mod_id": 2412,
+      "file_id": 9867,
+      "select": [
+        "S12_LiaraAndOthersArmpatchGibberishReplacerV2_X05Edition.mem"
+      ]
+    }
+  ],
+  "LE2": [
+    {
+      "name": "ALOT for LE2",
+      "type": "m3to",
+      "mod_id": 363,
+      "file_id": 13764
+    },
+    {
+      "name": "Improved Static Lighting (ISL) for LE2",
+      "type": "m3to",
+      "torrent_member": "ImprovedStaticLightingforLE2_2021.1.0.7z"
+    },
+    {
+      "name": "LEUITM2",
+      "type": "mem",
+      "mod_id": 1827,
+      "file_id": 7327,
+      "select": [
+        "AllianceUniformsLEUITM2.mem",
+        "AriaLEUITM2.mem",
+        "BatarianLEUITM2.mem",
+        "CerberusUniformsLEUITM2.mem",
+        "CollectorsLEUITM2.mem",
+        "EndBossLEUITM2.mem",
+        "EnvironmentFixesLEUITM2.mem",
+        "FeronLEUITM2.mem",
+        "GruntLEUITM2.mem",
+        "KolyatLEUITM2.mem",
+        "KrogansLEUITM2.mem",
+        "LegionLEUITM2.mem",
+        "MordinLEUITM2.mem",
+        "OverlordLEUITM2.mem",
+        "SalariansLEUITM2.mem",
+        "ScionLEUITM2.mem",
+        "ShadowBrokerLEUITM2.mem",
+        "TelaVasirLEUITM2.mem",
+        "ThaneLEUITM2.mem",
+        "VolusLEUITM2.mem",
+        "VorchaLEUITM2.mem",
+        "WrexBattleHardenedLEUITM2.mem"
+      ]
+    },
+    {
+      "name": "Primitives - All in One Install (LE2)",
+      "type": "mem",
+      "mod_id": 22,
+      "file_id": 9691
+    },
+    {
+      "name": "GTFET Full Version (LE2)",
+      "type": "mem",
+      "mod_id": 1094,
+      "file_id": 6172
+    }
+  ],
+  "LE3": [
+    {
+      "name": "ALOT for LE3",
+      "type": "m3to",
+      "mod_id": 363,
+      "file_id": 13765
+    },
+    {
+      "name": "Improved Static Lighting (ISL) for LE3",
+      "type": "m3to",
+      "torrent_member": "ImprovedStaticLightingforLE3_2021.1.0.7z"
+    },
+    {
+      "name": "Primitives - All in One Install (LE3)",
+      "type": "mem",
+      "mod_id": 22,
+      "file_id": 9692
+    },
+    {
+      "name": "Clean Hands for Men",
+      "type": "mem",
+      "mod_id": 932,
+      "file_id": 3306
+    },
+    {
+      "name": "GTFET Full Version (LE3)",
+      "type": "mem",
+      "mod_id": 1113,
+      "file_id": 6170
+    },
+    {
+      "name": "Reduced interaction circle HUD",
+      "type": "mem",
+      "mod_id": 1106,
+      "file_id": 3916,
+      "select": [
+        "ReducedInteractionHUD.mem"
+      ]
+    }
+  ]
+}
