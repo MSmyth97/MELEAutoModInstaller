@@ -117,10 +117,19 @@ Layout: `src/Mele.Engine` (everything that matters, no UI), `src/Mele.Cli`, `src
 
 A goal is to bring in the functionality [ME3TweaksCore](https://github.com/ME3Tweaks/ME3TweaksCore) offers, which this app currently lacks. It was dropped from v0.1 because it does not run natively on Linux (see `docs/phase0-findings.md`), so each item needs either Core (Windows) or our own implementation (Linux):
 
-- Create and restore Mod Manager-compatible game backups from the app (today it only checks that they exist).
-- Detect the game folder automatically (Steam, EA, Epic) and validate it (vanilla, modded, broken).
-- ASI loader and Bink video patch management.
-- Reading game packages (e.g. to show which texture mods are really installed); needs Oodle, so Windows first.
+- [ ] Create and restore Mod Manager-compatible game backups from the app (today it only checks that they exist).
+- [ ] Detect the game folder automatically (Steam, EA, Epic) and validate it (vanilla, modded, broken).
+- [ ] ASI loader and Bink video patch management.
+- [ ] Reading game packages (e.g. to show which texture mods are really installed); needs Oodle, so Windows first.
+
+Other planned work:
+
+- [ ] **Any mod list, not just this guide.** Let the user load any Mod Manager batch install group (`.biq2`) instead of only the guide's. The app already reads that format, so downloading and staging would work as it does now. Texture mods would not be installed automatically for an arbitrary list, since they come from the guide's own manifest (`textures.json`), not from the batch file.
+  - [ ] **A texture list format.** A possible follow-up is a small schema of our own (something like `textures.json`, but meant for users to write and share) that describes texture mods the way a batch file describes mods, so the user can choose which texture mods and which files in each archive get installed.
+- [ ] **Warn when the game is not vanilla.** Before a run, check that the game folder is clean, for example no `DLC_MOD_*` folders, no leftover texture markers, and (where possible) that it matches the registered backup. Installing on top of an already-modded game is easy to do by accident and Mod Manager only complains late, at the batch install.
+- [ ] **Safe game restore in the app (Linux first).** Mod Manager's own restore does nothing on Linux (see Troubleshooting). The app could run the equivalent `rsync` itself, with a dry run shown first, real error reporting, and protection for files a backup is missing (such as LE1's `ISACT` audio), then verify the result against the backup.
+- [ ] **Check Mod Manager's game target matches the app's game folder.** The app and Mod Manager each keep their own idea of where the game is, and a wrong or mistyped path in Mod Manager fails silently. The app should compare them and, on Linux, show the exact path to enter, worked out from the game folder and the prefix's drive mappings.
+- [ ] **Sign in to Nexus Mods in the app** instead of pasting a personal API key. Nexus offers a browser-based sign-in for applications, which I believe needs the app to be registered with Nexus first; this needs checking before it is promised. The key-based sign-in would stay as a fallback.
 
 ## Credits
 
