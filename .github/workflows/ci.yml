@@ -20,7 +20,7 @@ jobs:
         with:
           dotnet-version: 10.0.x
       - name: Build
-        run: dotnet build src/Mele.Tests src/Mele.App.Tests src/Mele.Cli -c Release
+        run: dotnet build src/MELEAutoModInstaller.sln -c Release
       - name: Engine tests
         run: dotnet test src/Mele.Tests -c Release --no-build
       - name: GUI tests (headless; xUnit v3 projects are run directly)
