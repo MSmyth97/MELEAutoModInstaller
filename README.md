@@ -91,7 +91,7 @@ Verified on the author's machine (Linux, CachyOS, a Steam non-Steam-shortcut Pro
 - A genuine first-time, start-to-finish run through the GUI on a freshly restored game.
 - **Installing textures with the native Linux build of MEM** (`mele mem install`). Reading works; the install itself has only been proven with the Windows build under Proton.
 - **Everything on Windows.** The Windows code paths (registry backup lookup, the `.7z` MEM download, UTF-16 MEM output, the Windows package) compile and are covered by tests that run in CI, but have not been run on a Windows machine by the author.
-- The release packaging (the CI workflow and the 7-Zip bundling step) has not been run on GitHub yet.
+- The CI workflow has not been run on GitHub yet. (The release packages and their bundled 7-Zip build locally and match the pinned hashes, but the bundled 7-Zip has not been exercised by the packaged app, and not at all on Windows.)
 
 ## Building from source
 
@@ -108,7 +108,16 @@ build/package.sh linux-x64 dist                      # or win-x64; bundles 7-Zip
 
 Live tests (real Nexus API, real Mod Manager prefix) are skipped unless `MELE_LIVE=1`; they need a Premium key and read, but do not modify, your game. Set `MELE_SHOTS=<folder>` when running the GUI tests to keep rendered screenshots.
 
-Layout: `src/Mele.Engine` (everything that matters, no UI), `src/Mele.Cli`, `src/Mele.App` (Avalonia), plus tests. `guide.json` and `textures.json` describe the guide (they are embedded in the build). `docs/phase0-findings.md` records why ME3TweaksCore is not used on Linux. `mele_installer/` is the original Python prototype, kept for reference.
+Layout: `src/Mele.Engine` (everything that matters, no UI), `src/Mele.Cli`, `src/Mele.App` (Avalonia), plus tests. `guide.json` and `textures.json` describe the guide (they are embedded in the build). `docs/phase0-findings.md` records why ME3TweaksCore is not used (it does not run natively on Linux). `mele_installer/` is the original Python prototype, kept for reference.
+
+## Roadmap
+
+A goal is to bring in the functionality [ME3TweaksCore](https://github.com/ME3Tweaks/ME3TweaksCore) offers, which this app currently lacks. It was dropped from v0.1 because it does not run natively on Linux (see `docs/phase0-findings.md`), so each item needs either Core (Windows) or our own implementation (Linux):
+
+- Create and restore Mod Manager-compatible game backups from the app (today it only checks that they exist).
+- Detect the game folder automatically (Steam, EA, Epic) and validate it (vanilla, modded, broken).
+- ASI loader and Bink video patch management.
+- Reading game packages (e.g. to show which texture mods are really installed); needs Oodle, so Windows first.
 
 ## Credits
 
