@@ -1,0 +1,15 @@
+{
+  "_comment": "Nexus guide 1127 (Synth). Entries the guide's own group files have no link for are supplied here.",
+  "game_domain": "masseffectlegendaryedition",
+  "guide_mod_id": 1127,
+  "group_name_pattern": "{game} Mod Collection",
+  "link_overrides": {
+    "A Lot of Videos for LE2": "https://www.nexusmods.com/masseffectlegendaryedition/mods/3?tab=files&file_id=13305",
+    "A Lot of Videos for LE3": "https://www.nexusmods.com/masseffectlegendaryedition/mods/3?tab=files&file_id=13307"
+  },
+  "manual_steps": {
+    "LE1": ["Apply the Shepard hair mods you want with Trilogy Save Editor (they cannot be applied automatically)."],
+    "LE2": ["Apply the Shepard hair mods you want with Trilogy Save Editor (they cannot be applied automatically)."],
+    "LE3": ["In Mod Manager: Tools > EGM Settings (Legendary Edition) > Mission Timings tab > Citadel DLC: choose 'Disable DLC' (or 'CEM Full')."]
+  }
+}

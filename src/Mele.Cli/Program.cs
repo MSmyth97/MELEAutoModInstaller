@@ -4,6 +4,7 @@ using Mele.Engine.Biq;
 using Mele.Engine.Download;
 using Mele.Engine.Mem;
 using Mele.Engine.Nexus;
+using Mele.Engine.Orchestration;
 using Mele.Engine.Pipeline;
 using Mele.Engine.Platform;
 using Mele.Engine.Provision;
@@ -13,6 +14,11 @@ using Mele.Engine.Textures;
 const string Usage = """
     mele <command> [options]
 
+    plan     --game-dir DIR [--prefix DIR] [--game LE1]...        read-only: checks, the guide's current groups, and what a run would do
+    run      --game-dir DIR [--prefix DIR] [--game LE1]... [--skip-textures] [--yes] [--keep-archives] [--min-free-gb N]
+             the whole guide: mods -> textures -> (you install in Mod Manager) -> MEM. Resumable; backups required.
+    state    show|reset|adopt [--game LE1]... [--state FILE]      what the app believes is done. reset = start a fresh playthrough
+             (do this after restoring backups); adopt = record that a game is already fully modded (installed by hand or by an older version)
     check    <group.biq2>... [--library DIR] [--link "Mod=URL"]   survey a library (no network when --library is given), or validate the API key
     install  <group.biq2>... --library DIR [--cache DIR] [--jobs N] [--only TEXT] [--link "Mod=URL"] [--keep-archives] [--dry-run]
     textures <textures.json> --library DIR [--mem-root DIR] [--cache DIR] [--game LE1] [--only TEXT] [--keep-archives]
@@ -38,6 +44,9 @@ try
     return cmd switch
     {
         "check" => await Check(o, rest),
+        "plan" => await Plan(o, cts.Token),
+        "state" => StateCmd(o, rest),
+        "run" => await Run(o, cts.Token),
         "install" => await Install(o, rest, cts.Token),
         "textures" => await Textures(o, rest, cts.Token),
         "backups" => Backups(o),
@@ -46,7 +55,7 @@ try
         _ => Fail($"unknown command '{cmd}'\n\n{Usage}"),
     };
 }
-catch (Exception e) when (e is ProvisionException or ArgumentException or ApiKeyException or NexusException or MemUpdateException or FileNotFoundException or InvalidDataException or OperationCanceledException)
+catch (Exception e) when (e is ProvisionException or IOException or ArgumentException or ApiKeyException or NexusException or MemUpdateException or FileNotFoundException or InvalidDataException or OperationCanceledException)
 {
     Console.Error.WriteLine($"error: {e.Message}");
     return 2;
@@ -257,5 +266,63 @@ static async Task<int> M3(Opts o, List<string> sub, CancellationToken ct)
             return 0;
         default:
             return Fail("m3 needs a subcommand: setup | status | launch");
+    }
+}
+
+static async Task<int> Plan(Opts o, CancellationToken ct)
+{
+    using var c = new Compose(o, new ConsoleHost(false));
+    var plan = await c.Orchestrator.PlanAsync(c.Options, ct);
+    foreach (var i in plan.Issues) Console.WriteLine($"{(i.Blocking ? "BLOCKING" : "warning ")} {i.Message}");
+    if (plan.Issues.Any(i => i.Blocking)) { Console.WriteLine("\nA run would stop at these checks; nothing has been changed."); return 1; }
+    foreach (var g in plan.Games)
+        Console.WriteLine($"{g.Game}: mods {g.Staged} staged / {g.ToInstall} to download / {g.Manual} manual; "
+                          + $"textures prepared={g.State.TexturesPrepared}, mod manager confirmed={g.State.M3Confirmed}, textures installed={g.State.TexturesInstalled}"
+                          + (g.GuideChanged ? "; GUIDE CHANGED since you last confirmed Mod Manager" : ""));
+    Console.WriteLine("\nPlan only; nothing was installed.");
+    return 0;
+}
+
+static async Task<int> Run(Opts o, CancellationToken ct)
+{
+    using var c = new Compose(o, new ConsoleHost(o.Has("yes")));
+    var result = await c.Orchestrator.RunAsync(c.Options, ct);
+    Console.WriteLine($"\nResult: {result.Outcome}");
+    foreach (var n in result.Notes) Console.WriteLine($"  - {n}");
+    if (result.Outcome == RunOutcome.Completed && result.ManualSteps.Count > 0)
+    {
+        Console.WriteLine("\nStill to do by hand:");
+        foreach (var m in result.ManualSteps) Console.WriteLine($"  - {m}");
+    }
+    return result.Outcome == RunOutcome.Completed ? 0 : result.Outcome == RunOutcome.PausedAtM3 ? 0 : 1;
+}
+
+static int StateCmd(Opts o, List<string> sub)
+{
+    var file = o.Get("state") ?? Path.Combine(AppPaths.DataDir, "state.json");
+    var state = RunState.Load(file);
+    var games = o.All("game").Count > 0 ? o.All("game").Select(g => g.ToUpperInvariant()).ToList() : ["LE1", "LE2", "LE3"];
+    switch (sub.FirstOrDefault())
+    {
+        case "show":
+            Console.WriteLine($"State file: {file}{(File.Exists(file) ? "" : " (none yet)")}");
+            foreach (var g in games)
+            {
+                var s = state.For(g);
+                Console.WriteLine($"{g}: textures prepared={s.TexturesPrepared}, mod manager confirmed={s.M3Confirmed}, textures installed={s.TexturesInstalled}");
+            }
+            return 0;
+        case "reset":
+            foreach (var g in games) state.Games.Remove(g);
+            state.Save(file);
+            Console.WriteLine($"Reset {string.Join(", ", games)}: the next run starts from the beginning.");
+            return 0;
+        case "adopt":
+            foreach (var g in games) { var s = state.For(g); s.TexturesPrepared = s.M3Confirmed = s.TexturesInstalled = true; }
+            state.Save(file);
+            Console.WriteLine($"Recorded {string.Join(", ", games)} as fully installed. A run will skip them.");
+            return 0;
+        default:
+            return Fail("state needs a subcommand: show | reset | adopt");
     }
 }
