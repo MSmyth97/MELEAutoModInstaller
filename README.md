@@ -123,4 +123,4 @@ A goal is to bring in the functionality [ME3TweaksCore](https://github.com/ME3Tw
 
 The mod selection and install order come from the guide by **Synth** on Nexus Mods. The actual installing is done by **ME3Tweaks Mod Manager** (ME3Tweaks) and **Mass Effect Modder** (Pawel Kolodziejski and contributors); this app only downloads and drives them, and neither is redistributed in its packages. Archives are unpacked with **7-Zip** (Igor Pavlov). See `packaging/THIRD-PARTY.txt`. This project is not affiliated with or endorsed by ME3Tweaks, Nexus Mods, BioWare or Electronic Arts.
 
-Licence: not chosen yet.
+Licence: [MIT](LICENSE). Bundled and downloaded third-party tools keep their own licences (see `packaging/THIRD-PARTY.txt`).

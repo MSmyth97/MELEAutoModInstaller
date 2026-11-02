@@ -48,7 +48,7 @@ if [ "${MELE_SKIP_7ZIP:-}" != "1" ]; then
 fi
 
 find "$pkg" -name "*.pdb" -delete   # native dependencies ship 100+ MB of debug symbols that users never need
-cp README.md "$pkg/"
+cp README.md LICENSE "$pkg/"
 cp packaging/THIRD-PARTY.txt "$pkg/"
 
 echo "==> archiving"
