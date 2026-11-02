@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mele.Engine", "Mele.Engine\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mele.Tests", "Mele.Tests\Mele.Tests.csproj", "{6B6777A7-ED23-425D-B105-4D7D669C97E5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mele.Cli", "Mele.Cli\Mele.Cli.csproj", "{E39F3C6F-FDF7-4149-8F5E-9B24F0D62352}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +43,18 @@ Global
 		{6B6777A7-ED23-425D-B105-4D7D669C97E5}.Release|x64.Build.0 = Release|Any CPU
 		{6B6777A7-ED23-425D-B105-4D7D669C97E5}.Release|x86.ActiveCfg = Release|Any CPU
 		{6B6777A7-ED23-425D-B105-4D7D669C97E5}.Release|x86.Build.0 = Release|Any CPU
+		{E39F3C6F-FDF7-4149-8F5E-9B24F0D62352}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E39F3C6F-FDF7-4149-8F5E-9B24F0D62352}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E39F3C6F-FDF7-4149-8F5E-9B24F0D62352}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E39F3C6F-FDF7-4149-8F5E-9B24F0D62352}.Debug|x64.Build.0 = Debug|Any CPU
+		{E39F3C6F-FDF7-4149-8F5E-9B24F0D62352}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E39F3C6F-FDF7-4149-8F5E-9B24F0D62352}.Debug|x86.Build.0 = Debug|Any CPU
+		{E39F3C6F-FDF7-4149-8F5E-9B24F0D62352}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E39F3C6F-FDF7-4149-8F5E-9B24F0D62352}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E39F3C6F-FDF7-4149-8F5E-9B24F0D62352}.Release|x64.ActiveCfg = Release|Any CPU
+		{E39F3C6F-FDF7-4149-8F5E-9B24F0D62352}.Release|x64.Build.0 = Release|Any CPU
+		{E39F3C6F-FDF7-4149-8F5E-9B24F0D62352}.Release|x86.ActiveCfg = Release|Any CPU
+		{E39F3C6F-FDF7-4149-8F5E-9B24F0D62352}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

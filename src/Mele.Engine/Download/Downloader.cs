@@ -7,11 +7,18 @@ namespace Mele.Engine.Download;
 
 public enum FetchResult { Cached, Downloaded }
 
+/// <summary>What the install pipeline needs from a downloader; lets tests supply archives without a network.</summary>
+public interface IModFileSource
+{
+    Task<(string Path, FetchResult Result)> FetchAsync(ModEntry entry, CancellationToken ct = default);
+    void Evict(int fileId);
+}
+
 /// <summary>
 /// Downloads a Nexus file into <c>cacheDir/&lt;fileId&gt;/&lt;file_name&gt;</c> (+ info.json recording the expected size),
 /// verifying size and, when Nexus supplies it, MD5. A file only counts as cached if info.json exists and the size matches.
 /// </summary>
-public sealed class Downloader(NexusClient nexus, HttpClient cdn, string cacheDir)
+public sealed class Downloader(NexusClient nexus, HttpClient cdn, string cacheDir) : IModFileSource
 {
     public string CacheDir { get; } = cacheDir;
 

@@ -114,4 +114,21 @@ public class LiveTests
         Assert.Equal(0, rc);
         Assert.Contains(check, l => l.Contains("Finished checking"));
     }
+
+    [LiveFact]
+    public void Generated_batch_groups_match_the_ones_the_python_tool_made_for_the_same_library()
+    {
+        var library = Environment.GetEnvironmentVariable("MELE_LIBRARY")
+            ?? "/home/matt/.local/share/Steam/steamapps/compatdata/2199358105/pfx/drive_c/users/matt/Documents/ME3TweaksModManager/mods";
+        var manifestPath = Path.Combine(Path.GetDirectoryName(Repo.Samples)!, "textures.json");
+        var manifest = TextureManifest.Load(manifestPath);
+        using var tmp = new TempDir();
+        foreach (var game in new[] { "LE1", "LE2", "LE3" })
+        {
+            var mine = Mele.Engine.Biq.BiqGroup.Load(M3toBatchWriter.Write(manifest, game, library, tmp.Path));
+            var theirs = Mele.Engine.Biq.BiqGroup.Load(Path.Combine(library, "BatchModQueues", $"{game} Textures M3TO (generated).biq2"));
+            Assert.Equal(theirs.Mods.Select(m => (m.Name, m.ModDescRelPath, m.ModDescMd5, m.ModDescSize, m.ModId, m.FileId)),
+                         mine.Mods.Select(m => (m.Name, m.ModDescRelPath, m.ModDescMd5, m.ModDescSize, m.ModId, m.FileId)));
+        }
+    }
 }
