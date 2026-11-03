@@ -19,7 +19,9 @@ public interface IAppBackend
     Task<RunResult> RunAsync(AppSettings s, IRunHost host, CancellationToken ct);
     // Game backups. The Plan* calls change nothing and throw BackupException/RestoreException with a message fit to show the user.
     Task<GameReport> CheckGameAsync(AppSettings s, string game, CancellationToken ct);
-    Task<BackupPlan> PlanBackupAsync(AppSettings s, string game, CancellationToken ct);
+    /// <param name="destination">Where to put the backup; null for a suggested folder next to the game.</param>
+    /// <param name="replaceExisting">Make a new backup although Mod Manager already has one; the old one stays on disk.</param>
+    Task<BackupPlan> PlanBackupAsync(AppSettings s, string game, string? destination, bool replaceExisting, CancellationToken ct);
     Task<BackupResult> CreateBackupAsync(AppSettings s, BackupPlan plan, IProgress<FileProgress> progress, CancellationToken ct);
     Task<RestorePlan> PlanRestoreAsync(AppSettings s, string game, CancellationToken ct);
     Task<RestoreResult> RestoreAsync(AppSettings s, RestorePlan plan, IProgress<FileProgress> progress, CancellationToken ct);

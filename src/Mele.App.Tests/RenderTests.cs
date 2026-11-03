@@ -65,6 +65,19 @@ public class RenderTests : IDisposable
         Shot(vm, "09_backups_question", h: 1700);
     }
 
+    [AvaloniaFact] public void Setup_new_backup_asks_for_a_folder()
+    {
+        var b = new FakeBackend { KeySaved = true, BackupList = [new("LE1", "/home/u/Games/ME1 Backup", true, "OK"), new("LE2", null, false, "No backup recorded by Mod Manager"), new("LE3", null, false, "No backup recorded by Mod Manager")] };
+        var vm = _helper.Vm(b);
+        vm.ConfirmTitle = "Back up LE1?";
+        foreach (var l in new[] { "Copy 3685 files (15.2 GB) from /home/u/Games/Mass Effect Legendary Edition/Game/ME1",
+                     "then tell Mod Manager where the backup is. This takes a few minutes and does not change the game.",
+                     "Mod Manager will use the new backup from now on. The old one (/home/u/Games/ME1 Backup) stays on disk; delete it yourself if you no longer want it." }) vm.ConfirmLines.Add(l);
+        vm.ConfirmFolder = "/home/u/Games/ME1 Backup 2";
+        vm.ConfirmFolderVisible = true;
+        Shot(vm, "11_new_backup_folder", h: 1700);
+    }
+
     [AvaloniaFact] public void Setup_backups_while_working_in_dark_mode()
     {
         var b = new FakeBackend { KeySaved = true };

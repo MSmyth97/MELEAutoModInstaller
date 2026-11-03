@@ -24,6 +24,18 @@ public sealed class BackupCreator(IBackupRegistry registry, Func<bool>? gameRunn
     public static string DefaultDestination(string gameDir, string game) =>
         Path.Combine(Path.GetDirectoryName(Path.TrimEndingDirectorySeparator(Path.GetFullPath(gameDir))) ?? gameDir, $"ME{MemRunner.GameId(game)} Backup");
 
+    /// <summary>
+    /// <see cref="DefaultDestination"/>, or the same name with " 2", " 3"... when that folder already holds something (for example the
+    /// backup being replaced), so a suggestion is never a folder the preflight would refuse.
+    /// </summary>
+    public static string SuggestDestination(string gameDir, string game)
+    {
+        var baseName = DefaultDestination(gameDir, game);
+        var candidate = baseName;
+        for (var n = 2; Directory.Exists(candidate) && Directory.EnumerateFileSystemEntries(candidate).Any(); n++) candidate = $"{baseName} {n}";
+        return candidate;
+    }
+
     public BackupPlan Prepare(string game, string gameFolder, string destination, BackupInfo existing, bool replaceExisting = false, CancellationToken ct = default)
     {
         var folder = Path.GetFullPath(gameFolder);

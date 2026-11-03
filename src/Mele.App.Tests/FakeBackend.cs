@@ -38,16 +38,25 @@ public sealed class FakeBackend : IAppBackend
     public Exception? PlanFailure { get; set; }
     public TaskCompletionSource? HoldCreate { get; set; }
     public List<string> Calls { get; } = [];
+    public List<BackupPlan> Created { get; } = [];
 
     public Task<GameReport> CheckGameAsync(AppSettings s, string game, CancellationToken ct) { Calls.Add("check " + game); return Task.FromResult(Check(game)); }
-    public Task<BackupPlan> PlanBackupAsync(AppSettings s, string game, CancellationToken ct)
+    public List<(string Game, string? Destination, bool Replace)> PlanRequests { get; } = [];
+    /// <summary>Lets a test refuse particular destinations (for example one that is not empty).</summary>
+    public Func<string?, Exception?>? PlanFailureForDestination { get; set; }
+    public Task<BackupPlan> PlanBackupAsync(AppSettings s, string game, string? destination, bool replaceExisting, CancellationToken ct)
     {
         Calls.Add("plan-backup " + game);
-        return PlanFailure != null ? Task.FromException<BackupPlan>(PlanFailure) : Task.FromResult(BackupPlanFor(game));
+        PlanRequests.Add((game, destination, replaceExisting));
+        var failure = PlanFailure ?? PlanFailureForDestination?.Invoke(destination);
+        if (failure != null) return Task.FromException<BackupPlan>(failure);
+        var plan = BackupPlanFor(game);
+        return Task.FromResult(destination == null ? plan : plan with { Destination = destination });
     }
     public async Task<BackupResult> CreateBackupAsync(AppSettings s, BackupPlan plan, IProgress<FileProgress> progress, CancellationToken ct)
     {
         Calls.Add("create " + plan.Game);
+        Created.Add(plan);
         progress.Report(new("Copying the game", 25, 3684, "x"));
         if (HoldCreate != null) await HoldCreate.Task.WaitAsync(ct);
         return CreateResult(plan);

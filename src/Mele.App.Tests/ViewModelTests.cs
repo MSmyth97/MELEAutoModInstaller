@@ -249,7 +249,7 @@ public class ViewModelTests : IDisposable
         await WaitFor(() => vm.ConfirmPending);
         Assert.Equal("Back up LE1?", vm.ConfirmTitle);
         Assert.Contains(vm.ConfirmLines, l => l.Contains("3684 files") && l.Contains("/g/LE1"));
-        Assert.Contains(vm.ConfirmLines, l => l.Contains("/b/new LE1"));
+        Assert.Equal("/b/new LE1", vm.ConfirmFolder);                              // the destination is in the editable folder box
         Assert.DoesNotContain("create LE1", b.Calls);                              // nothing is copied before the click
 
         vm.ConfirmYesCommand.Execute(null);
@@ -391,5 +391,97 @@ public class ViewModelTests : IDisposable
         Dispatcher.UIThread.RunJobs();
         Assert.False(vm.IsBusy);
         Assert.True(vm.BackupActionsEnabled);
+    }
+
+    // ---- a new backup for a game that already has one, and choosing the folder --------------------------------------
+
+    [AvaloniaFact]
+    public void Games_with_a_backup_offer_a_new_one_and_games_without_do_not_need_it()
+    {
+        var b = new FakeBackend { BackupList = [new("LE1", null, false, "none"), new("LE2", "/b/me2", true, "OK"), new("LE3", "/b/me3", true, "OK")] };
+        var vm = Vm(b);
+        Assert.NotNull(Row(vm, "LE2").Replace);
+        Assert.True(Row(vm, "LE2").CanRestore);          // the New backup... button shows with Check and Restore
+        Assert.True(Row(vm, "LE1").CanCreate);
+    }
+
+    [AvaloniaFact]
+    public async Task A_new_backup_for_a_game_that_has_one_says_the_old_one_is_kept_and_offers_the_folder()
+    {
+        var b = new FakeBackend();
+        var vm = Vm(b, ui: a => Dispatcher.UIThread.Post(a));
+        var task = Row(vm, "LE1").Replace!.ExecuteAsync(null);
+
+        await WaitFor(() => vm.ConfirmPending);
+        Assert.Equal([("LE1", (string?)null, true)], b.PlanRequests);                        // replace was requested, folder left to the app
+        Assert.True(vm.ConfirmFolderVisible);
+        Assert.Equal("/b/new LE1", vm.ConfirmFolder);
+        Assert.Contains(vm.ConfirmLines, l => l.Contains("The old one (/b/me1) stays on disk"));
+
+        vm.ConfirmYesCommand.Execute(null);
+        await task;
+        Dispatcher.UIThread.RunJobs();
+        Assert.Equal("/b/new LE1", Assert.Single(b.Created).Destination);
+        Assert.False(vm.ConfirmFolderVisible);
+    }
+
+    [AvaloniaFact]
+    public async Task A_first_backup_does_not_talk_about_an_old_one()
+    {
+        var b = new FakeBackend { BackupList = [new("LE1", null, false, "none"), new("LE2", "/b", true, "OK"), new("LE3", "/b", true, "OK")] };
+        var vm = Vm(b, ui: a => Dispatcher.UIThread.Post(a));
+        var task = Row(vm, "LE1").Create!.ExecuteAsync(null);
+        await WaitFor(() => vm.ConfirmPending);
+        Assert.DoesNotContain(vm.ConfirmLines, l => l.Contains("old one"));
+        Assert.False(b.PlanRequests.Single().Replace);
+        vm.ConfirmNoCommand.Execute(null);
+        await task;
+    }
+
+    [AvaloniaFact]
+    public async Task Changing_the_folder_checks_the_new_one_and_asks_again_before_copying()
+    {
+        var b = new FakeBackend();
+        var vm = Vm(b, ui: a => Dispatcher.UIThread.Post(a));
+        var task = Row(vm, "LE1").Replace!.ExecuteAsync(null);
+        await WaitFor(() => vm.ConfirmPending);
+
+        vm.ConfirmFolder = "/mnt/big/ME1 Full Backup";
+        vm.ConfirmYesCommand.Execute(null);                                                  // "yes" with a different folder = check that folder first
+        await WaitFor(() => b.PlanRequests.Count == 2 && vm.ConfirmPending && vm.ConfirmFolder == "/mnt/big/ME1 Full Backup");
+        Assert.Equal("/mnt/big/ME1 Full Backup", b.PlanRequests[1].Destination);
+        Assert.Empty(b.Created);                                                             // still nothing copied
+
+        vm.ConfirmYesCommand.Execute(null);
+        await task;
+        Dispatcher.UIThread.RunJobs();
+        Assert.Equal("/mnt/big/ME1 Full Backup", Assert.Single(b.Created).Destination);
+    }
+
+    [AvaloniaFact]
+    public async Task A_folder_the_engine_refuses_is_reported_and_nothing_is_copied()
+    {
+        var b = new FakeBackend { PlanFailureForDestination = d => d == "/not/empty" ? new BackupException("LE1: the backup folder /not/empty is not empty. Choose an empty or new folder.") : null };
+        var vm = Vm(b, ui: a => Dispatcher.UIThread.Post(a));
+        var task = Row(vm, "LE1").Replace!.ExecuteAsync(null);
+        await WaitFor(() => vm.ConfirmPending);
+        vm.ConfirmFolder = "/not/empty";
+        vm.ConfirmYesCommand.Execute(null);
+        await task;
+        Dispatcher.UIThread.RunJobs();
+        Assert.False(vm.ConfirmPending);
+        Assert.Contains(vm.BackupLines, l => l.Contains("is not empty"));
+        Assert.Empty(b.Created);
+    }
+
+    [AvaloniaFact]
+    public async Task Restore_does_not_show_a_folder_box()
+    {
+        var vm = Vm(new FakeBackend(), ui: a => Dispatcher.UIThread.Post(a));
+        var task = Row(vm, "LE1").Restore!.ExecuteAsync(null);
+        await WaitFor(() => vm.ConfirmPending);
+        Assert.False(vm.ConfirmFolderVisible);
+        vm.ConfirmNoCommand.Execute(null);
+        await task;
     }
 }

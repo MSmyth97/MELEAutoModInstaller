@@ -98,6 +98,25 @@ public class BackupCreatorTests : IDisposable
     }
 
     [Fact]
+    public void A_suggested_folder_is_never_one_that_already_holds_something()
+    {
+        var free = BackupCreator.SuggestDestination(_gameDir, "LE1");
+        Assert.Equal(_dest, free);                                                           // nothing there yet: the plain name
+
+        Put(_dest, "cmm_vanilla", "");                                                       // the existing backup
+        var second = BackupCreator.SuggestDestination(_gameDir, "LE1");
+        Assert.Equal(_dest + " 2", second);
+
+        Put(second, "x");
+        Assert.Equal(_dest + " 3", BackupCreator.SuggestDestination(_gameDir, "LE1"));
+
+        Directory.CreateDirectory(_dest + " 3");                                             // an empty folder is fine to use
+        Assert.Equal(_dest + " 3", BackupCreator.SuggestDestination(_gameDir, "LE1"));
+        VanillaGame();
+        Assert.NotNull(Creator(new RecordingRegistry()).Prepare("LE1", _game, BackupCreator.SuggestDestination(_gameDir, "LE1"), new BackupInfo("LE1", _dest, true, "OK"), replaceExisting: true));
+    }
+
+    [Fact]
     public void Refuses_to_back_up_a_modded_game()
     {
         VanillaGame();

@@ -27,4 +27,10 @@ public partial class MainWindow : Window
         var picked = await StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions { Title = "Choose the Mass Effect Legendary Edition folder", AllowMultiple = false });
         if (picked.Count > 0 && picked[0].TryGetLocalPath() is { } path && DataContext is MainViewModel vm) vm.GameDir = path;
     }
+
+    private async void OnBrowseBackupFolder(object? sender, RoutedEventArgs e)
+    {
+        var picked = await StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions { Title = "Choose an empty folder for the backup", AllowMultiple = false });
+        if (picked.Count > 0 && picked[0].TryGetLocalPath() is { } path && DataContext is MainViewModel vm) vm.ConfirmFolder = path;
+    }
 }

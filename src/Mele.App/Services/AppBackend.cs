@@ -44,11 +44,11 @@ public sealed class AppBackend : IAppBackend
         return Task.Run(() => GameReport.Build(game, GameFolders.Root(s.GameDir, game), backup, ct), ct);
     }
 
-    public Task<BackupPlan> PlanBackupAsync(AppSettings s, string game, CancellationToken ct)
+    public Task<BackupPlan> PlanBackupAsync(AppSettings s, string game, string? destination, bool replaceExisting, CancellationToken ct)
     {
         var loc = M3Location.Resolve(s.PrefixDir);
         var creator = Creator(loc);
-        return Task.Run(() => creator.Prepare(game, GameFolders.Root(s.GameDir, game), BackupCreator.DefaultDestination(s.GameDir, game), loc.Backups.Get(game), ct: ct), ct);
+        return Task.Run(() => creator.Prepare(game, GameFolders.Root(s.GameDir, game), destination ?? BackupCreator.SuggestDestination(s.GameDir, game), loc.Backups.Get(game), replaceExisting, ct), ct);
     }
 
     public Task<BackupResult> CreateBackupAsync(AppSettings s, BackupPlan plan, IProgress<FileProgress> progress, CancellationToken ct) =>

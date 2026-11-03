@@ -13,7 +13,7 @@ namespace Mele.App.ViewModels;
 public enum Page { Setup, Run, Done }
 
 public sealed record LogLine(string Time, string Text, bool IsError, bool IsWarning, bool IsHeading);
-public sealed record BackupRow(string Game, bool Ok, string Text, IAsyncRelayCommand? Create = null, IAsyncRelayCommand? Restore = null, IAsyncRelayCommand? Check = null)
+public sealed record BackupRow(string Game, bool Ok, string Text, IAsyncRelayCommand? Create = null, IAsyncRelayCommand? Restore = null, IAsyncRelayCommand? Check = null, IAsyncRelayCommand? Replace = null)
 {
     public bool CanCreate => !Ok;
     public bool CanRestore => Ok;
@@ -63,6 +63,9 @@ public sealed partial class MainViewModel : ObservableObject
     // A question on the setup page (back up / restore) that waits for a click before anything is changed.
     [ObservableProperty, NotifyPropertyChangedFor(nameof(ConfirmPending), nameof(BackupActionsEnabled))] private string? confirmTitle;
     public ObservableCollection<string> ConfirmLines { get; } = [];
+    /// <summary>For a new backup the question also offers the folder to put it in.</summary>
+    [ObservableProperty] private string confirmFolder = "";
+    [ObservableProperty] private bool confirmFolderVisible;
     public bool ConfirmPending => ConfirmTitle != null;
     /// <summary>The row buttons are live only when nothing is running and no question is waiting.</summary>
     public bool BackupActionsEnabled => !IsBusy && !ConfirmPending;
@@ -119,7 +122,8 @@ public sealed partial class MainViewModel : ObservableObject
         {
             var game = b.Game;
             Backups.Add(new BackupRow(game, b.Valid, b.Valid ? $"{b.Path}" : b.Reason,
-                new AsyncRelayCommand(() => RunCreateBackup(game)), new AsyncRelayCommand(() => RunRestoreGame(game)), new AsyncRelayCommand(() => RunCheckGame(game))));
+                new AsyncRelayCommand(() => RunCreateBackup(game)), new AsyncRelayCommand(() => RunRestoreGame(game)), new AsyncRelayCommand(() => RunCheckGame(game)),
+                new AsyncRelayCommand(() => RunCreateBackup(game, replace: true))));
         }
     }
 
@@ -295,35 +299,53 @@ public sealed partial class MainViewModel : ObservableObject
         });
     }
 
-    private async Task RunCreateBackup(string game)
+    private async Task RunCreateBackup(string game, bool replace = false)
     {
         if (Occupied) return;
         BackupLines.Clear();
+        var existing = Backups.FirstOrDefault(r => r.Game == game && r.Ok)?.Text;
+        string? destination = null;                 // null = the suggested folder next to the game
         BackupPlan? plan = null;
-        await Busy($"Preparing a backup of {game}", async ct =>
+        while (true)
         {
-            try { plan = await _backend.PlanBackupAsync(Settings, game, ct); }
-            catch (Exception e) when (e is BackupException or ProvisionException) { BackupLines.Add(e.Message); }
-        });
-        if (plan == null) return;
+            plan = null;
+            await Busy($"Preparing a backup of {game}", async ct =>
+            {
+                try { plan = await _backend.PlanBackupAsync(Settings, game, destination, replace, ct); }
+                catch (Exception e) when (e is BackupException or ProvisionException) { BackupLines.Add(e.Message); }
+            });
+            if (plan == null) return;
 
-        if (!await ConfirmAsync($"Back up {game}?",
-            [$"Copy {plan.Files} files ({plan.Bytes / 1073741824.0:0.0} GB) from {plan.GameFolder}", $"to {plan.Destination}", "then tell Mod Manager where it is. This takes a few minutes and does not change the game."]))
-        { BackupLines.Add("Cancelled; nothing was copied."); return; }
+            List<string> lines =
+            [
+                $"Copy {plan.Files} files ({plan.Bytes / 1073741824.0:0.0} GB) from {plan.GameFolder}",
+                "then tell Mod Manager where the backup is. This takes a few minutes and does not change the game.",
+            ];
+            if (replace && existing != null)
+                lines.Add($"Mod Manager will use the new backup from now on. The old one ({existing}) stays on disk; delete it yourself if you no longer want it.");
+            var (yes, folder) = await ConfirmAsync($"Back up {game}?", lines, plan.Destination);
+            if (!yes) { BackupLines.Add("Cancelled; nothing was copied."); return; }
+            if (!string.IsNullOrWhiteSpace(folder) && !SameFolder(folder, plan.Destination)) { destination = folder; continue; }   // another folder: check it, then ask again
+            break;
+        }
 
+        var made = plan!;
         await Busy($"Backing up {game}", async ct =>
         {
             try
             {
-                var r = await _backend.CreateBackupAsync(Settings, plan, new Progress<FileProgress>(p => _ui(() => ShowProgress(p))), ct);
+                var r = await _backend.CreateBackupAsync(Settings, made, new Progress<FileProgress>(p => _ui(() => ShowProgress(p))), ct);
                 BackupLines.Add(r.Success ? (r.Registered ? $"{game}: backup created, verified and registered with Mod Manager." : $"{game}: backup created and verified, but Mod Manager does not know about it yet.") : $"{game}: the backup was not created.");
                 foreach (var p in r.Problems) BackupLines.Add("  " + p);
             }
-            catch (OperationCanceledException) { BackupLines.Add($"{game}: stopped. The partial backup in {plan.Destination} is not valid; delete it before trying again."); }
+            catch (OperationCanceledException) { BackupLines.Add($"{game}: stopped. The partial backup in {made.Destination} is not valid; delete it before trying again."); }
             catch (Exception e) when (e is BackupException or ProvisionException) { BackupLines.Add(e.Message); }
         });
         Refresh();
     }
+
+    private static bool SameFolder(string a, string b) =>
+        string.Equals(Path.TrimEndingDirectorySeparator(a.Trim()), Path.TrimEndingDirectorySeparator(b.Trim()), StringComparison.Ordinal);
 
     private async Task RunRestoreGame(string game)
     {
@@ -338,8 +360,8 @@ public sealed partial class MainViewModel : ObservableObject
         if (plan == null) return;
         if (plan.NothingToDo) { BackupLines.Add($"{game} already matches its backup; nothing to restore."); return; }
 
-        if (!await ConfirmAsync($"Restore {game} from its backup?",
-            [.. plan.Describe(), "Your graphics settings (GamerSettings.ini) are kept. Close the game first. The backup itself is not changed."]))
+        if (!(await ConfirmAsync($"Restore {game} from its backup?",
+            [.. plan.Describe(), "Your graphics settings (GamerSettings.ini) are kept. Close the game first. The backup itself is not changed."])).Yes)
         { BackupLines.Add("Cancelled; nothing was changed."); return; }
 
         await Busy($"Restoring {game}", async ct =>
@@ -356,12 +378,21 @@ public sealed partial class MainViewModel : ObservableObject
         Refresh();
     }
 
-    private async Task<bool> ConfirmAsync(string title, IEnumerable<string> lines)
+    private async Task<(bool Yes, string? Folder)> ConfirmAsync(string title, IEnumerable<string> lines, string? folder = null)
     {
         _decision = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
-        _ui(() => { ConfirmLines.Clear(); foreach (var l in lines) ConfirmLines.Add(l); ConfirmTitle = title; });
-        try { return await _decision.Task; }
-        finally { _ui(() => { ConfirmTitle = null; ConfirmLines.Clear(); }); }
+        _ui(() =>
+        {
+            ConfirmLines.Clear(); foreach (var l in lines) ConfirmLines.Add(l);
+            ConfirmFolder = folder ?? ""; ConfirmFolderVisible = folder != null;
+            ConfirmTitle = title;
+        });
+        try
+        {
+            var yes = await _decision.Task;
+            return (yes, folder != null ? ConfirmFolder.Trim() : null);
+        }
+        finally { _ui(() => { ConfirmTitle = null; ConfirmLines.Clear(); ConfirmFolderVisible = false; }); }
     }
 
     private string _lastPhase = "";
