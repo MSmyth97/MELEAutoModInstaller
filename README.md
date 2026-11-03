@@ -2,7 +2,7 @@
 
 Automates the busywork of the [Mass Effect Legendary Edition modding guide](https://www.nexusmods.com/masseffectlegendaryedition/mods/1127) on Nexus Mods: it downloads every mod and texture the guide lists, puts them where ME3Tweaks Mod Manager expects them, and installs the `.mem` textures with Mass Effect Modder. Runs on Windows and Linux, as a desktop app or a command-line tool.
 
-> **Status: early (0.1.1).** It has been run end to end on one machine (Linux, Steam/Proton prefix, all three games). See [What has and has not been verified](#what-has-and-has-not-been-verified) before you rely on it, and make Mod Manager backups first.
+> **Status: early (0.1.2).** It has been run end to end on one machine (Linux, Steam/Proton prefix, all three games). See [What has and has not been verified](#what-has-and-has-not-been-verified) before you rely on it, and make Mod Manager backups first.
 
 ## What it does for you
 
