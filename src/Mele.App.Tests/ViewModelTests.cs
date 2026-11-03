@@ -508,4 +508,86 @@ public class ViewModelTests : IDisposable
         var vm = Vm(new FakeBackend());
         Assert.Empty(vm.Targets);
     }
+
+    // ---- finding the game ----------------------------------------------------------------------------------------
+
+    private MainViewModel NoFolderYet(FakeBackend b) => new(b, new AppSettings(), a => Dispatcher.UIThread.Post(a), _settingsFile);
+
+    [AvaloniaFact]
+    public async Task On_first_launch_a_single_install_is_filled_in_without_asking()
+    {
+        var b = new FakeBackend { Installs = [new("/games/Mass Effect Legendary Edition", "Steam", ["LE1", "LE2", "LE3"])] };
+        var vm = NoFolderYet(b);
+        await WaitFor(() => vm.GameDir != "");
+        Assert.Equal("/games/Mass Effect Legendary Edition", vm.GameDir);
+        Assert.Contains("Found your game (Steam)", vm.DetectStatus);
+        Assert.Empty(vm.Detected);
+    }
+
+    [AvaloniaFact]
+    public async Task On_first_launch_several_installs_are_offered_not_chosen_for_the_user()
+    {
+        var b = new FakeBackend { Installs = [new("/a/ME", "Steam", ["LE1", "LE2", "LE3"]), new("/b/ME", "a folder scan", ["LE1"])] };
+        var vm = NoFolderYet(b);
+        await WaitFor(() => vm.Detected.Count == 2);
+        Assert.Equal("", vm.GameDir);
+        Assert.Contains("Found 2 installs", vm.DetectStatus);
+        Assert.Contains("1 game(s): LE1", vm.Detected[1].Description);
+        vm.Detected[1].Use.Execute(null);
+        Assert.Equal("/b/ME", vm.GameDir);
+        Assert.Empty(vm.Detected);
+    }
+
+    [AvaloniaFact]
+    public async Task On_first_launch_finding_nothing_is_silent()
+    {
+        var b = new FakeBackend();
+        var vm = NoFolderYet(b);
+        await WaitFor(() => b.FindCalls == 1);
+        Dispatcher.UIThread.RunJobs();
+        Assert.Equal("", vm.DetectStatus);
+        Assert.Equal("", vm.GameDir);
+    }
+
+    [AvaloniaFact]
+    public void A_folder_the_user_already_chose_is_never_searched_for_or_replaced_on_launch()
+    {
+        var b = new FakeBackend { Installs = [new("/other/ME", "Steam", ["LE1"])] };
+        var vm = Vm(b);
+        Dispatcher.UIThread.RunJobs();
+        Assert.Equal(0, b.FindCalls);
+        Assert.NotEqual("/other/ME", vm.GameDir);
+    }
+
+    [AvaloniaFact]
+    public async Task Find_my_game_with_nothing_found_says_how_to_browse()
+    {
+        var vm = Vm(new FakeBackend());
+        await vm.FindGameCommand.ExecuteAsync(null);
+        Assert.Contains("Use Browse", vm.DetectStatus);
+    }
+
+    [AvaloniaFact]
+    public async Task Find_my_game_offers_a_different_install_instead_of_replacing_the_chosen_folder()
+    {
+        var chosen = FakeGame();
+        var b = new FakeBackend { Installs = [new("/elsewhere/ME", "Heroic", ["LE1"])] };
+        var vm = Vm(b, chosen);
+        await vm.FindGameCommand.ExecuteAsync(null);
+        Assert.Equal(chosen, vm.GameDir);                                                    // not replaced behind the user's back
+        var row = Assert.Single(vm.Detected);
+        Assert.Contains("found in Heroic", row.Description);
+        row.Use.Execute(null);
+        Assert.Equal("/elsewhere/ME", vm.GameDir);
+    }
+
+    [AvaloniaFact]
+    public async Task Find_my_game_confirms_when_the_only_install_is_the_one_already_chosen()
+    {
+        var chosen = FakeGame();
+        var vm = Vm(new FakeBackend { Installs = [new(chosen, "a folder scan", ["LE1", "LE2", "LE3"])] }, chosen);
+        await vm.FindGameCommand.ExecuteAsync(null);
+        Assert.Empty(vm.Detected);
+        Assert.Contains("Found your game", vm.DetectStatus);
+    }
 }

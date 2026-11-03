@@ -38,10 +38,25 @@
             <StackPanel Spacing="8">
               <TextBlock Classes="h2" Text="2. Your game" />
               <TextBlock Classes="muted" TextWrapping="Wrap" Text="The folder that contains 'Game', 'Launcher' and 'Support' (usually called Mass Effect Legendary Edition)." />
-              <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+              <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
                 <TextBox Grid.Column="0" Text="{Binding GameDir}" PlaceholderText="Path to the game folder" />
-                <Button Grid.Column="1" Content="Browse..." Click="OnBrowseGame" />
+                <Button Grid.Column="1" Content="Find my game" Command="{Binding FindGameCommand}" IsEnabled="{Binding IsIdle}" />
+                <Button Grid.Column="2" Content="Browse..." Click="OnBrowseGame" />
               </Grid>
+              <TextBlock Text="{Binding DetectStatus}" TextWrapping="Wrap" Classes="muted" IsVisible="{Binding DetectStatus.Length}" />
+              <ItemsControl ItemsSource="{Binding Detected}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="vm:DetectedRow">
+                    <Grid ColumnDefinitions="*,Auto" Margin="0,2">
+                      <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                        <SelectableTextBlock Text="{Binding Path}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding Description}" Classes="muted" TextWrapping="Wrap" />
+                      </StackPanel>
+                      <Button Grid.Column="1" Content="Use this" Command="{Binding Use}" Margin="8,0,0,0" />
+                    </Grid>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
               <TextBlock Text="{Binding GameDirStatus}" TextWrapping="Wrap" Classes.ok="{Binding GameDirOk}" Classes.bad="{Binding !GameDirOk}" />
               <StackPanel Orientation="Horizontal" Spacing="22" Margin="0,4,0,0">
                 <CheckBox Content="Mass Effect 1" IsChecked="{Binding Le1}" />

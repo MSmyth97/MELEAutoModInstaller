@@ -32,6 +32,9 @@ public sealed class AppBackend : IAppBackend
         catch (ApiKeyException e) { return (false, e.Message); }
     }
 
+    public Task<IReadOnlyList<DetectedInstall>> FindGamesAsync(CancellationToken ct) =>
+        Task.Run(() => GameLocator.Default().Find(), ct);
+
     public IReadOnlyList<BackupInfo> GetBackups(AppSettings s)
     {
         var loc = M3Location.Resolve(s.PrefixDir);

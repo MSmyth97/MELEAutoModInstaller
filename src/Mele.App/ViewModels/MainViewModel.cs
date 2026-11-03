@@ -19,6 +19,7 @@ public sealed record BackupRow(string Game, bool Ok, string Text, IAsyncRelayCom
     public bool CanRestore => Ok;
 }
 public sealed record TargetRow(string Game, bool Ok, string Text);
+public sealed record DetectedRow(string Path, string Description, IRelayCommand Use);
 public sealed record ChecklistItem(string Text);
 
 public sealed partial class MainViewModel : ObservableObject
@@ -38,6 +39,7 @@ public sealed partial class MainViewModel : ObservableObject
         gameDir = s.GameDir; prefixDir = s.PrefixDir; le1 = s.Le1; le2 = s.Le2; le3 = s.Le3; includeTextures = s.IncludeTextures;
         keyStatus = backend.HasSavedKey ? "A key is saved. Enter a new one only to replace it." : "No key saved yet.";
         Refresh();
+        if (string.IsNullOrWhiteSpace(s.GameDir)) _ = AutoDetectAsync();
     }
 
     // ---- settings ---------------------------------------------------------------------------------------------
@@ -58,6 +60,9 @@ public sealed partial class MainViewModel : ObservableObject
     [ObservableProperty, NotifyPropertyChangedFor(nameof(CanStart))] private bool gameDirOk;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(CanStart))] private bool anyGameSelected;
     public ObservableCollection<BackupRow> Backups { get; } = [];
+    /// <summary>Installs found by 'Find my game' that the user can pick from.</summary>
+    public ObservableCollection<DetectedRow> Detected { get; } = [];
+    [ObservableProperty] private string detectStatus = "";
     /// <summary>Whether Mod Manager's own list of game folders contains the one chosen here.</summary>
     public ObservableCollection<TargetRow> Targets { get; } = [];
     /// <summary>What the last backup, restore or check did or found, shown under the Backups card.</summary>
@@ -174,6 +179,47 @@ public sealed partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand] private void RefreshStatus() => Refresh();
+
+    [RelayCommand]
+    private async Task FindGameAsync()
+    {
+        await Busy("Looking for your game", async ct =>
+        {
+            try { await DetectAsync(manual: true, ct); }
+            catch (Exception e) when (e is not OperationCanceledException) { DetectStatus = $"Could not look for the game: {e.Message}"; }
+        });
+    }
+
+    /// <summary>On first launch, when no folder is chosen yet: quietly fill it in if there is exactly one install.</summary>
+    private async Task AutoDetectAsync()
+    {
+        try { await DetectAsync(manual: false, CancellationToken.None); }
+        catch (Exception) { /* detection is a convenience; the user can still browse */ }
+    }
+
+    private async Task DetectAsync(bool manual, CancellationToken ct)
+    {
+        var found = await _backend.FindGamesAsync(ct);
+        Detected.Clear();
+        if (found.Count == 0)
+        {
+            DetectStatus = manual ? "Could not find the game automatically. Use Browse and choose the folder that contains 'Game', 'Launcher' and 'Support'." : "";
+            return;
+        }
+        if (found.Count == 1 && (!manual || string.IsNullOrWhiteSpace(GameDir) || SameFolder(GameDir, found[0].Path)))
+        {
+            GameDir = found[0].Path;
+            DetectStatus = $"Found your game ({found[0].Source}). Change it with Browse if this is not the one you want.";
+            return;
+        }
+        DetectStatus = found.Count == 1 ? "Found an install:" : $"Found {found.Count} installs. Choose the one to use:";
+        foreach (var f in found)
+        {
+            var path = f.Path;
+            Detected.Add(new DetectedRow(path, $"{f.Games.Count} game(s): {string.Join(", ", f.Games)}   (found in {f.Source})",
+                new RelayCommand(() => { GameDir = path; Detected.Clear(); DetectStatus = "Using " + path; })));
+        }
+    }
 
     [RelayCommand]
     private async Task CheckAsync()

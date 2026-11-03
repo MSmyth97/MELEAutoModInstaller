@@ -20,6 +20,9 @@ public sealed class FakeBackend : IAppBackend
     public string StatePath => "/tmp/state.json";
 
     public Task<(bool Ok, string Message)> CheckKeyAsync(string key, CancellationToken ct) { KeySaved = KeyResult.Ok || KeySaved; return Task.FromResult(KeyResult); }
+    public List<DetectedInstall> Installs { get; set; } = [];
+    public int FindCalls;
+    public Task<IReadOnlyList<DetectedInstall>> FindGamesAsync(CancellationToken ct) { FindCalls++; return Task.FromResult<IReadOnlyList<DetectedInstall>>(Installs); }
     public IReadOnlyList<BackupInfo> GetBackups(AppSettings s) => BackupList;
     public M3Status GetM3Status(AppSettings s) => M3;
     public List<TargetCheck> TargetList { get; set; } = [];

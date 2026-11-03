@@ -12,6 +12,8 @@ public interface IAppBackend
 {
     Task<(bool Ok, string Message)> CheckKeyAsync(string key, CancellationToken ct);
     bool HasSavedKey { get; }
+    /// <summary>Looks for installs of the game on this machine (read-only).</summary>
+    Task<IReadOnlyList<DetectedInstall>> FindGamesAsync(CancellationToken ct);
     IReadOnlyList<BackupInfo> GetBackups(AppSettings s);
     M3Status GetM3Status(AppSettings s);
     /// <summary>Does Mod Manager have each selected game's folder as a target? Empty until Mod Manager has been set up.</summary>

@@ -12,7 +12,7 @@ internal sealed class Compose : IDisposable
     public Compose(Opts o, IRunHost host)
     {
         var cfg = new AppConfig(
-            GameDir: o.Get("game-dir") ?? throw new ArgumentException("--game-dir (the 'Mass Effect Legendary Edition' folder) is required"),
+            GameDir: o.GameDir(),
             PrefixDir: o.Get("prefix"), Library: o.Get("library"), CacheDir: o.Get("cache"), MemRoot: o.Get("mem-root"),
             StateFile: o.Get("state"), GuideFile: o.Get("guide"), TexturesFile: o.Get("textures"));
         _services = AppServices.Create(cfg, host);

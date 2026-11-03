@@ -30,7 +30,7 @@ Automates the busywork of the [Mass Effect Legendary Edition modding guide](http
 
 1. Download the package for your system from the Releases page, unpack it, and run `MELEAutoModInstaller` (`.exe` on Windows).
 2. **Nexus account:** paste your API key and press *Save and check*.
-3. **Your game:** choose the game folder and tick the games you want. Untick textures if you only want the mods.
+3. **Your game:** the app looks for the game itself (Steam, Heroic, Epic, EA, and the usual game folders) and fills the folder in when it finds exactly one; *Find my game* looks again, and *Browse...* lets you choose by hand. Tick the games you want. Untick textures if you only want the mods.
 4. **Mod Manager:** press *Set up Mod Manager* (downloads it; on Linux also creates the Proton prefix). Open it, add your game (on Linux, use the `Z:` drive, which is the whole filesystem, e.g. `Z:\home\you\Games\Mass Effect Legendary Edition\Game\ME1`; note `X:` in the app's prefix is your home folder, so `X:\home\you\…` is wrong), and **make a backup of each game** (or, with a game that is still untouched, press *Back up now* under Backups: it copies the game, checks the copy and tells Mod Manager about it; *New backup...* does the same for a game that already has one, into a folder you choose, and keeps the old backup). Back in this app, *Refresh* under Backups.
 5. Press **Check first** if you want a read-only preview, then **Start**.
 6. When it says *Your turn*, open Mod Manager's **Batch Mod Installer**, load the listed groups (they are already in its list) and install them one game at a time. Press *I have installed them*.
@@ -41,6 +41,7 @@ You can press **Stop** at any time. Running again continues where it left off; n
 ## Command line
 
 ```
+mele detect                                            find the game install(s) on this machine (--game-dir is optional when exactly one is found)
 mele plan     --game-dir DIR [--prefix DIR]            read-only: checks, guide groups, what a run would do
 mele run      --game-dir DIR [--prefix DIR] [--game LE1]... [--skip-textures] [--yes]
 mele state    show | reset | adopt [--game LE1]...      what the app believes is done
@@ -121,7 +122,7 @@ Layout: `src/Mele.Engine` (everything that matters, no UI), `src/Mele.Cli`, `src
 A goal is to bring in the functionality [ME3TweaksCore](https://github.com/ME3Tweaks/ME3TweaksCore) offers, which this app currently lacks. It was dropped from v0.1 because it does not run natively on Linux (see `docs/phase0-findings.md`), so each item needs either Core (Windows) or our own implementation (Linux):
 
 - [x] Create and restore Mod Manager-compatible game backups from the app: *Back up now*, *Check* and *Restore* buttons under Backups, and `mele backups create|restore|compare`. Create refuses a modded game, verifies the copy, writes the marker last and registers the path (Wine's registry tool on Linux, the registry on Windows). Tested end to end on Linux; **not yet run on Windows**.
-- [ ] Detect the game folder automatically (Steam, EA, Epic) and validate it (vanilla, modded, broken).
+- [x] Detect the game folder automatically (Steam, Heroic and Legendary, Epic, EA, the Windows registry, and a bounded scan of the usual game folders and mounted drives). The window fills the folder in when there is exactly one install and lists them when there are several; `mele detect` shows them, and `--game-dir` becomes optional. *Checked:* the folder scan on a real Linux machine (an installer-made copy in `~/Games`); the Steam, Heroic, Epic and registry sources against test fixtures only, **not against real launcher installs, and not on Windows**. Validating that a found game is vanilla or modded is covered by the backup checks.
 - [ ] ASI loader and Bink video patch management.
 - [ ] Reading game packages (e.g. to show which texture mods are really installed); needs Oodle, so Windows first.
 

@@ -15,6 +15,7 @@ using Mele.Engine.Textures;
 const string Usage = """
     mele <command> [options]
 
+    detect   find the Mass Effect Legendary Edition install(s) on this machine (Steam, Heroic, Epic, EA, and the usual game folders)
     plan     --game-dir DIR [--prefix DIR] [--game LE1]...        read-only: checks, the guide's current groups, and what a run would do
     run      --game-dir DIR [--prefix DIR] [--game LE1]... [--skip-textures] [--yes] [--keep-archives] [--min-free-gb N]
              the whole guide: mods -> textures -> (you install in Mod Manager) -> MEM. Resumable; backups required.
@@ -53,6 +54,7 @@ try
     return cmd switch
     {
         "check" => await Check(o, rest),
+        "detect" => Detect(),
         "plan" => await Plan(o, cts.Token),
         "state" => StateCmd(o, rest),
         "run" => await Run(o, cts.Token),
@@ -68,6 +70,19 @@ catch (Exception e) when (e is RestoreException or BackupException or ProvisionE
 {
     Console.Error.WriteLine($"error: {e.Message}");
     return 2;
+}
+
+static int Detect()
+{
+    var found = GameLocator.Default().Find();
+    if (found.Count == 0)
+    {
+        Console.WriteLine("No Mass Effect Legendary Edition install was found. Looked in the Steam, Heroic and Epic libraries and the usual game folders;");
+        Console.WriteLine("give the folder with --game-dir (the one that contains 'Game', 'Launcher' and 'Support').");
+        return 1;
+    }
+    foreach (var f in found) Console.WriteLine($"{f.Path}\n    found in: {f.Source}   games: {string.Join(", ", f.Games)}");
+    return 0;
 }
 
 static int Fail(string m) { Console.Error.WriteLine(m); return 2; }
@@ -184,7 +199,7 @@ static IBackupLocator Locator(Opts o)
 static int BackupsCompare(Opts o)
 {
     var game = o.Require("game");
-    var folder = GameFolders.Root(o.Require("game-dir"), game);
+    var folder = GameFolders.Root(o.GameDir(), game);
     var b = Locator(o).Get(game);
     if (!b.Valid) { Console.Error.WriteLine($"{game}: no valid backup ({b.Reason})"); return 1; }
     if (!Directory.Exists(folder)) { Console.Error.WriteLine($"{game}: game folder not found ({folder})"); return 1; }
@@ -206,7 +221,7 @@ static int BackupsCompare(Opts o)
 static async Task<int> BackupsRestore(Opts o, CancellationToken ct)
 {
     var game = o.Require("game");
-    var folder = GameFolders.Root(o.Require("game-dir"), game);
+    var folder = GameFolders.Root(o.GameDir(), game);
     var b = Locator(o).Get(game);
     var restorer = new GameRestorer();
     var plan = restorer.Prepare(game, b, folder, o.Has("delete-unknown"), ct);
@@ -251,7 +266,7 @@ static IBackupRegistry BackupRegistry(Opts o)
 static async Task<int> BackupsCreate(Opts o, CancellationToken ct)
 {
     var game = o.Require("game");
-    var gameDir = o.Require("game-dir");
+    var gameDir = o.GameDir();
     var folder = GameFolders.Root(gameDir, game);
     var dest = o.Get("to") ?? BackupCreator.DefaultDestination(gameDir, game);
     var creator = new BackupCreator(BackupRegistry(o));
@@ -320,7 +335,7 @@ static async Task<int> Mem(Opts o, List<string> sub, CancellationToken ct)
             }
             Console.WriteLine($"Backup OK: {backup.Path}");
             var mem = new MemRunner(runner, await updater.EnsureAsync(status, ct: ct));
-            if (!await mem.SetGamePathAsync(game, o.Require("game-dir"), ct)) { Console.Error.WriteLine("MEM would not accept the game path"); return 1; }
+            if (!await mem.SetGamePathAsync(game, o.GameDir(), ct)) { Console.Error.WriteLine("MEM would not accept the game path"); return 1; }
             int packages = 0;
             var result = await mem.InstallAsync(game, Path.GetFullPath(o.Require("mfl")), line =>
             {
@@ -363,7 +378,7 @@ static async Task<int> M3(Opts o, List<string> sub, CancellationToken ct)
             return 0;
         case "targets":
         {
-            var gameDir = o.Require("game-dir");
+            var gameDir = o.GameDir();
             var loc = Mele.Engine.Provision.M3Location.Resolve(o.Get("prefix-dir"));
             var games = o.All("game").Count > 0 ? o.All("game") : ["LE1", "LE2", "LE3"];
             var bad = 0;

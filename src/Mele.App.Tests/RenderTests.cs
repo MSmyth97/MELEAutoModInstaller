@@ -65,6 +65,15 @@ public class RenderTests : IDisposable
         Shot(vm, "09_backups_question", h: 1700);
     }
 
+    [AvaloniaFact] public void Setup_several_installs_found()
+    {
+        var vm = new MainViewModel(new FakeBackend { KeySaved = true }, new AppSettings(), settingsFile: Path.Combine(Path.GetTempPath(), "none.json"));
+        vm.DetectStatus = "Found 2 installs. Choose the one to use:";
+        vm.Detected.Add(new DetectedRow("/home/u/.local/share/Steam/steamapps/common/Mass Effect Legendary Edition", "3 game(s): LE1, LE2, LE3   (found in Steam)", new CommunityToolkit.Mvvm.Input.RelayCommand(() => { })));
+        vm.Detected.Add(new DetectedRow("/home/u/Games/Mass Effect Legendary Edition", "1 game(s): LE1   (found in a folder scan)", new CommunityToolkit.Mvvm.Input.RelayCommand(() => { })));
+        Shot(vm, "13_find_game_several", h: 900);
+    }
+
     [AvaloniaFact] public void Setup_mod_manager_targets()
     {
         var b = new FakeBackend { KeySaved = true, TargetList = [
