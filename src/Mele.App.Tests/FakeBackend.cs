@@ -2,6 +2,7 @@ using Mele.App.Services;
 using Mele.Engine.Backup;
 using Mele.Engine.Orchestration;
 using Mele.Engine.Platform;
+using Mele.Engine.Provision;
 
 namespace Mele.App.Tests;
 
@@ -21,6 +22,8 @@ public sealed class FakeBackend : IAppBackend
     public Task<(bool Ok, string Message)> CheckKeyAsync(string key, CancellationToken ct) { KeySaved = KeyResult.Ok || KeySaved; return Task.FromResult(KeyResult); }
     public IReadOnlyList<BackupInfo> GetBackups(AppSettings s) => BackupList;
     public M3Status GetM3Status(AppSettings s) => M3;
+    public List<TargetCheck> TargetList { get; set; } = [];
+    public IReadOnlyList<TargetCheck> GetTargets(AppSettings s) => TargetList.Where(t => s.Games.Contains(t.Game)).ToList();
     public Task SetupM3Async(AppSettings s, IProgress<string> progress, CancellationToken ct) { SetupCalls++; M3 = M3 with { Installed = true }; return Task.CompletedTask; }
     public void LaunchM3(AppSettings s) => LaunchCalls++;
     public Task<RunPlan> PlanAsync(AppSettings s, IRunHost host, CancellationToken ct) => Task.FromResult(Plan);

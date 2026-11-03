@@ -18,6 +18,7 @@ public sealed record BackupRow(string Game, bool Ok, string Text, IAsyncRelayCom
     public bool CanCreate => !Ok;
     public bool CanRestore => Ok;
 }
+public sealed record TargetRow(string Game, bool Ok, string Text);
 public sealed record ChecklistItem(string Text);
 
 public sealed partial class MainViewModel : ObservableObject
@@ -57,6 +58,8 @@ public sealed partial class MainViewModel : ObservableObject
     [ObservableProperty, NotifyPropertyChangedFor(nameof(CanStart))] private bool gameDirOk;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(CanStart))] private bool anyGameSelected;
     public ObservableCollection<BackupRow> Backups { get; } = [];
+    /// <summary>Whether Mod Manager's own list of game folders contains the one chosen here.</summary>
+    public ObservableCollection<TargetRow> Targets { get; } = [];
     /// <summary>What the last backup, restore or check did or found, shown under the Backups card.</summary>
     public ObservableCollection<string> BackupLines { get; } = [];
 
@@ -116,6 +119,9 @@ public sealed partial class MainViewModel : ObservableObject
         M3Status = m3.Installed ? $"Installed: {m3.Path}"
             : m3.UmuMissing ? "Not installed. This needs umu-launcher (umu-run) on Linux; install it with your package manager first."
             : "Not installed yet.";
+
+        Targets.Clear();
+        foreach (var t in _backend.GetTargets(s)) Targets.Add(new TargetRow(t.Game, t.Ok, t.Message));
 
         Backups.Clear();
         foreach (var b in _backend.GetBackups(s).Where(b => s.Games.Contains(b.Game)))

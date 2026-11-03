@@ -1,6 +1,7 @@
 using Mele.Engine.Backup;
 using Mele.Engine.Orchestration;
 using Mele.Engine.Platform;
+using Mele.Engine.Provision;
 
 namespace Mele.App.Services;
 
@@ -13,6 +14,8 @@ public interface IAppBackend
     bool HasSavedKey { get; }
     IReadOnlyList<BackupInfo> GetBackups(AppSettings s);
     M3Status GetM3Status(AppSettings s);
+    /// <summary>Does Mod Manager have each selected game's folder as a target? Empty until Mod Manager has been set up.</summary>
+    IReadOnlyList<TargetCheck> GetTargets(AppSettings s);
     Task SetupM3Async(AppSettings s, IProgress<string> progress, CancellationToken ct);
     void LaunchM3(AppSettings s);
     Task<RunPlan> PlanAsync(AppSettings s, IRunHost host, CancellationToken ct);

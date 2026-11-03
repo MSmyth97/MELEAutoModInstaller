@@ -58,6 +58,17 @@
               <TextBlock Classes="muted" TextWrapping="Wrap"
                          Text="Mod Manager does the actual mod installation. This app downloads it for you and prepares everything it needs." />
               <TextBlock Text="{Binding M3Status}" TextWrapping="Wrap" Classes.ok="{Binding M3Ready}" Classes.muted="{Binding !M3Ready}" />
+              <ItemsControl ItemsSource="{Binding Targets}" IsVisible="{Binding Targets.Count}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="vm:TargetRow">
+                    <Grid ColumnDefinitions="28,60,*" Margin="0,2">
+                      <TextBlock Grid.Column="0" Text="{Binding Ok, Converter={x:Static vm:Glyphs.Check}}" Classes.ok="{Binding Ok}" Classes.bad="{Binding !Ok}" FontWeight="Bold" />
+                      <TextBlock Grid.Column="1" Text="{Binding Game}" FontWeight="SemiBold" />
+                      <SelectableTextBlock Grid.Column="2" Text="{Binding Text}" TextWrapping="Wrap" Classes.muted="{Binding Ok}" />
+                    </Grid>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
               <StackPanel Orientation="Horizontal" Spacing="8">
                 <Button Content="Set up Mod Manager" Command="{Binding SetupM3Command}" IsEnabled="{Binding IsIdle}" />
                 <Button Content="Open Mod Manager" Command="{Binding LaunchM3Command}" IsEnabled="{Binding M3Ready}" />

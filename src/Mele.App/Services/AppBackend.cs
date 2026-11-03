@@ -72,6 +72,13 @@ public sealed class AppBackend : IAppBackend
         return new BackupCreator(new WineBackupRegistry(prefix));
     }
 
+    public IReadOnlyList<TargetCheck> GetTargets(AppSettings s)
+    {
+        if (string.IsNullOrWhiteSpace(s.GameDir)) return [];
+        var loc = M3Location.Resolve(s.PrefixDir);
+        return s.Games.Select(g => loc.Targets.Check(g, GameFolders.Root(s.GameDir, g))).OfType<TargetCheck>().ToList();
+    }
+
     public M3Status GetM3Status(AppSettings s)
     {
         var loc = M3Location.Resolve(s.PrefixDir);

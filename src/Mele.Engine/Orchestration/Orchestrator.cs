@@ -5,6 +5,7 @@ using Mele.Engine.Mem;
 using Mele.Engine.Nexus;
 using Mele.Engine.Pipeline;
 using Mele.Engine.Platform;
+using Mele.Engine.Provision;
 using Mele.Engine.Textures;
 
 namespace Mele.Engine.Orchestration;
@@ -50,7 +51,8 @@ public sealed class Orchestrator(
     GuideConfig guide,
     RunPaths paths,
     IRunHost host,
-    Func<bool>? extractorAvailable = null)
+    Func<bool>? extractorAvailable = null,
+    Func<string, string, TargetCheck?>? modManagerTarget = null)
 {
     /// <summary>A game is expected to still be vanilla until Mod Manager has installed the batch or textures were installed.</summary>
     private bool ExpectVanilla(string game)
@@ -62,7 +64,7 @@ public sealed class Orchestrator(
     /// <summary>Read-only: what a run would do right now.</summary>
     public async Task<RunPlan> PlanAsync(RunOptions opts, CancellationToken ct = default)
     {
-        var issues = await Preflight.RunAsync(opts.Games, paths, backups, validateAccount, opts.MinFreeGb, ct, extractorAvailable, ExpectVanilla);
+        var issues = await Preflight.RunAsync(opts.Games, paths, backups, validateAccount, opts.MinFreeGb, ct, extractorAvailable, ExpectVanilla, modManagerTarget);
         if (issues.Any(i => i.Blocking)) return new RunPlan(issues, []);
         var groups = await guideSource.FetchAsync(opts.Games, ct);
         var state = RunState.Load(paths.StateFile);
@@ -87,7 +89,7 @@ public sealed class Orchestrator(
 
         // 1. Checks. Nothing has been changed yet.
         Step("Checks", null, RunEventKind.StepStarted, "Checking account, game folders, backups and disk space");
-        var issues = await Preflight.RunAsync(opts.Games, paths, backups, validateAccount, opts.MinFreeGb, ct, extractorAvailable, ExpectVanilla);
+        var issues = await Preflight.RunAsync(opts.Games, paths, backups, validateAccount, opts.MinFreeGb, ct, extractorAvailable, ExpectVanilla, modManagerTarget);
         foreach (var i in issues) Step("Checks", null, i.Blocking ? RunEventKind.Error : RunEventKind.Warning, i.Message);
         if (issues.Any(i => i.Blocking)) { notes.Add("Blocked by the checks above; nothing was changed."); return Done(RunOutcome.Blocked); }
         Step("Checks", null, RunEventKind.StepFinished, "OK");

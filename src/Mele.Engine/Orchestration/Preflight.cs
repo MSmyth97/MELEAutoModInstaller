@@ -1,6 +1,7 @@
 using Mele.Engine.Backup;
 using Mele.Engine.Nexus;
 using Mele.Engine.Platform;
+using Mele.Engine.Provision;
 
 namespace Mele.Engine.Orchestration;
 
@@ -9,7 +10,8 @@ public sealed record PreflightIssue(bool Blocking, string Message);
 public static class Preflight
 {
     public static async Task<IReadOnlyList<PreflightIssue>> RunAsync(IReadOnlyList<string> games, RunPaths paths, IBackupLocator backups,
-        Func<CancellationToken, Task<NexusUser>> validateAccount, double minFreeGb, CancellationToken ct, Func<bool>? extractorAvailable = null, Func<string, bool>? expectVanilla = null)
+        Func<CancellationToken, Task<NexusUser>> validateAccount, double minFreeGb, CancellationToken ct, Func<bool>? extractorAvailable = null, Func<string, bool>? expectVanilla = null,
+        Func<string, string, TargetCheck?>? modManagerTarget = null)
     {
         var issues = new List<PreflightIssue>();
 
@@ -37,6 +39,9 @@ public static class Preflight
             else if (expectVanilla?.Invoke(game) == true && VanillaCheck.Check(game, folder) is { IsVanilla: false } found)
                 // Not blocking (downloads can go ahead), but Mod Manager refuses to install cleanly over textures, so say so up front.
                 issues.Add(new(false, $"{game}: the game folder already has mods or textures installed ({found.Summary}). Restore it from your backup before the Mod Manager step."));
+            // Mod Manager installs into ITS target, so a wrong or missing one means the batch goes nowhere useful. It tells you nothing at all.
+            if (Directory.Exists(folder) && modManagerTarget?.Invoke(game, folder) is { Ok: false } target)
+                issues.Add(new(false, target.Message));
             var b = backups.Get(game);
             if (!b.Valid) issues.Add(new(true, $"{game}: no valid Mod Manager backup ({b.Reason}). Make one in Mod Manager before modding."));
         }

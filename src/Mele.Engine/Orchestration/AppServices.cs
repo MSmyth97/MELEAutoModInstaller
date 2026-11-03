@@ -52,7 +52,8 @@ public sealed class AppServices(Orchestrator orchestrator, RunPaths paths, M3Loc
                 new TextureStage(pipeline, manifest, cache),
                 async ct => new MemRunner(runner, await new MemUpdater(api, extractor, runner, AppPaths.MemDir).EnsureAsync(null, ct: ct)),
                 m3.Backups, nexus.ValidateAsync, guide, paths, host,
-                extractorAvailable: () => SevenZipExtractor.FindExecutable() != null || (!OperatingSystem.IsWindows() && Platform.ToolFinder.OnPath("bsdtar")));
+                extractorAvailable: () => SevenZipExtractor.FindExecutable() != null || (!OperatingSystem.IsWindows() && Platform.ToolFinder.OnPath("bsdtar")),
+                modManagerTarget: m3.Targets.Check);
             return new AppServices(orchestrator, paths, m3, nexus, api, cdn);
         }
         catch { api.Dispose(); cdn.Dispose(); throw; }

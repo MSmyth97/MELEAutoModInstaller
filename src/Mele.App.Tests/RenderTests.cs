@@ -65,6 +65,15 @@ public class RenderTests : IDisposable
         Shot(vm, "09_backups_question", h: 1700);
     }
 
+    [AvaloniaFact] public void Setup_mod_manager_targets()
+    {
+        var b = new FakeBackend { KeySaved = true, TargetList = [
+            new("LE1", Mele.Engine.Provision.TargetStatus.Matches, "Mod Manager's target for LE1 is this game folder.", @"Z:\home\u\Games\Mass Effect Legendary Edition\Game\ME1", []),
+            new("LE2", Mele.Engine.Provision.TargetStatus.Missing, @"Mod Manager's target for LE2 (X:\home\u\Games\Mass Effect Legendary Edition\Game\ME2) does not exist. Add the game again with this path: Z:\home\u\Games\Mass Effect Legendary Edition\Game\ME2", @"Z:\home\u\Games\Mass Effect Legendary Edition\Game\ME2", []),
+            new("LE3", Mele.Engine.Provision.TargetStatus.NotRegistered, @"Mod Manager does not have LE3 as a target yet. In Mod Manager add the game, using this path: Z:\home\u\Games\Mass Effect Legendary Edition\Game\ME3", @"Z:\home\u\Games\Mass Effect Legendary Edition\Game\ME3", [])] };
+        Shot(_helper.Vm(b), "12_mod_manager_targets", h: 1500);
+    }
+
     [AvaloniaFact] public void Setup_new_backup_asks_for_a_folder()
     {
         var b = new FakeBackend { KeySaved = true, BackupList = [new("LE1", "/home/u/Games/ME1 Backup", true, "OK"), new("LE2", null, false, "No backup recorded by Mod Manager"), new("LE3", null, false, "No backup recorded by Mod Manager")] };

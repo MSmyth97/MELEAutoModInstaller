@@ -4,6 +4,7 @@ using Mele.Engine.Nexus;
 using Mele.Engine.Orchestration;
 using Mele.Engine.Pipeline;
 using Mele.Engine.Platform;
+using Mele.Engine.Provision;
 using Mele.Engine.Stage;
 using Mele.Engine.Textures;
 
@@ -81,6 +82,8 @@ public class OrchestratorTests : IDisposable
 
     private bool _extractorPresent = true;
 
+    private Func<string, string, TargetCheck?>? _target;
+
     private Orchestrator Build(FakeGuide? guide = null, FakeTextures? textures = null, FakeSource? source = null)
     {
         var src = source ?? _source;
@@ -96,7 +99,8 @@ public class OrchestratorTests : IDisposable
                 ManualSteps = new Dictionary<string, IReadOnlyList<string>> { ["LE1"] = ["Do the hair"] } },
             new RunPaths(_library, Path.Combine(_tmp.Path, "cache"), Path.Combine(_tmp.Path, "mem"), _gameRoot, Path.Combine(_tmp.Path, "state.json")),
             _host,
-            () => _extractorPresent);
+            () => _extractorPresent,
+            modManagerTarget: _target);
     }
 
     private static readonly RunOptions Le1 = new(["LE1"], MinFreeGb: 0);
@@ -218,6 +222,24 @@ public class OrchestratorTests : IDisposable
         state.Save(Path.Combine(_tmp.Path, "state.json"));
         var plan = await Build().PlanAsync(Le1);
         Assert.DoesNotContain(plan.Issues, i => i.Message.Contains("already has mods"));
+    }
+
+    [Fact]
+    public async Task Warns_without_blocking_when_mod_manager_does_not_have_the_game_folder_as_a_target()
+    {
+        _target = (g, folder) => new TargetCheck(g, TargetStatus.Missing, "Mod Manager's target for LE1 (X:\\home\\u\\Game\\ME1) does not exist. Add the game again with this path: Z:\\g", "Z:\\g", []);
+        var plan = await Build().PlanAsync(Le1);
+        Assert.Contains(plan.Issues, i => !i.Blocking && i.Message.Contains("does not exist") && i.Message.Contains("Z:"));
+        Assert.Single(plan.Games);                                                           // a warning, not a stop
+    }
+
+    [Fact]
+    public async Task Says_nothing_when_the_target_is_right_or_mod_manager_is_not_set_up()
+    {
+        _target = (g, _) => new TargetCheck(g, TargetStatus.Matches, "fine", "Z:\\g", []);
+        Assert.DoesNotContain(( await Build().PlanAsync(Le1)).Issues, i => i.Message.Contains("fine"));
+        _target = (_, _) => null;
+        Assert.Empty((await Build().PlanAsync(Le1)).Issues);
     }
 
     [Fact]

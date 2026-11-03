@@ -2,6 +2,7 @@ using Avalonia.Headless.XUnit;
 using Avalonia.Threading;
 using Mele.App.ViewModels;
 using Mele.Engine.Backup;
+using Mele.Engine.Provision;
 using Mele.Engine.Orchestration;
 using Mele.Engine.Platform;
 
@@ -483,5 +484,28 @@ public class ViewModelTests : IDisposable
         Assert.False(vm.ConfirmFolderVisible);
         vm.ConfirmNoCommand.Execute(null);
         await task;
+    }
+
+    [AvaloniaFact]
+    public void The_mod_manager_card_lists_whether_each_selected_game_is_a_target()
+    {
+        var b = new FakeBackend { TargetList = [
+            new("LE1", TargetStatus.Matches, "Mod Manager's target for LE1 is this game folder.", @"Z:\g1", []),
+            new("LE2", TargetStatus.Missing, @"Mod Manager's target for LE2 (X:\home\u) does not exist. Add the game again with this path: Z:\g2", @"Z:\g2", []),
+            new("LE3", TargetStatus.NotRegistered, "no target", @"Z:\g3", [])] };
+        var vm = Vm(b);
+        Assert.Equal(["LE1", "LE2", "LE3"], vm.Targets.Select(t => t.Game));
+        Assert.True(vm.Targets[0].Ok);
+        Assert.False(vm.Targets[1].Ok);
+        Assert.Contains(@"Z:\g2", vm.Targets[1].Text);
+        vm.Le3 = false;                                                                         // only the selected games are shown
+        Assert.Equal(["LE1", "LE2"], vm.Targets.Select(t => t.Game));
+    }
+
+    [AvaloniaFact]
+    public void No_targets_are_shown_until_mod_manager_is_set_up()
+    {
+        var vm = Vm(new FakeBackend());
+        Assert.Empty(vm.Targets);
     }
 }

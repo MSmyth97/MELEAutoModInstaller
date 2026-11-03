@@ -34,6 +34,7 @@ const string Usage = """
     m3 setup  [--prefix-dir DIR]   download Mod Manager (and, on Linux, create the app's own Proton prefix for it)
     m3 status [--prefix-dir DIR]
     m3 launch [--prefix-dir DIR]
+    m3 targets --game-dir DIR [--game LE1]... [--prefix-dir DIR]   read-only: does Mod Manager have your game folder as a target? (shows the path to give it)
     mem update
     mem install --game LE1|LE2|LE3 --mfl FILE --game-dir DIR [--prefix DIR]   installs textures; refuses without valid backups
 
@@ -360,6 +361,21 @@ static async Task<int> M3(Opts o, List<string> sub, CancellationToken ct)
             Console.WriteLine($"Mod Manager: {m3.ExePath}\nMod library: {m3.LibraryPath}");
             if (prefix != null) Console.WriteLine("In Mod Manager, point it at your game with the Z: drive, e.g. Z:\\home\\you\\Games\\Mass Effect Legendary Edition");
             return 0;
+        case "targets":
+        {
+            var gameDir = o.Require("game-dir");
+            var loc = Mele.Engine.Provision.M3Location.Resolve(o.Get("prefix-dir"));
+            var games = o.All("game").Count > 0 ? o.All("game") : ["LE1", "LE2", "LE3"];
+            var bad = 0;
+            foreach (var g in games)
+            {
+                var c = loc.Targets.Check(g, GameFolders.Root(gameDir, g));
+                if (c == null) { Console.WriteLine($"{g}: Mod Manager has not been set up here yet"); bad++; continue; }
+                Console.WriteLine($"{g}: {(c.Ok ? "OK " : "BAD")} {c.Message}");
+                if (!c.Ok) bad++;
+            }
+            return bad == 0 ? 0 : 1;
+        }
         case "status":
             Console.WriteLine($"Mod Manager: {(m3.IsInstalled ? m3.ExePath : "not installed")}");
             if (prefix != null) Console.WriteLine($"Prefix: {prefix.Root} ({(prefix.IsInitialized ? "ready" : "not created")}), umu-run: {ProtonPrefix.FindUmu() ?? "NOT FOUND"}");

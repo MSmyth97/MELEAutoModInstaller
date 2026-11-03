@@ -9,6 +9,8 @@ public sealed class M3Location
     public ProtonPrefix? Prefix { get; private init; }
     public required string Home { get; init; }
     public required IBackupLocator Backups { get; init; }
+    /// <summary>The game folders Mod Manager has registered; compares them with the one this app uses.</summary>
+    public ModManagerTargets Targets { get; init; } = new(null, _ => null, _ => null, false);
     public string ExePath => Path.Combine(Home, M3Installer.ExeName);
     public string Library => Path.Combine(Home, "mods");
     public bool IsInstalled => File.Exists(ExePath);
@@ -21,6 +23,7 @@ public sealed class M3Location
             {
                 Home = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "ME3TweaksModManager"),
                 Backups = new RegistryBackupLocator(),
+                Targets = ModManagerTargets.ForWindows(),
             };
         var root = string.IsNullOrWhiteSpace(prefixDir) ? ProtonPrefix.DefaultRoot : prefixDir;
         var wine = WinePrefix.Find(root);
@@ -31,6 +34,7 @@ public sealed class M3Location
             Prefix = prefix,
             Home = prefix.M3Home,
             Backups = wine == null ? new NoBackups() : new WinePrefixBackupLocator(wine),
+            Targets = wine == null ? new ModManagerTargets(null, _ => null, _ => null, false) : ModManagerTargets.ForWinePrefix(wine),
         };
     }
 
