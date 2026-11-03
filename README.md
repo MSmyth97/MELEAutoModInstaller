@@ -2,7 +2,7 @@
 
 Automates the busywork of the [Mass Effect Legendary Edition modding guide](https://www.nexusmods.com/masseffectlegendaryedition/mods/1127) on Nexus Mods: it downloads every mod and texture the guide lists, puts them where ME3Tweaks Mod Manager expects them, and installs the `.mem` textures with Mass Effect Modder. Runs on Windows and Linux, as a desktop app or a command-line tool.
 
-> **Status: early (0.1.2).** It has been run end to end on one machine (Linux, Steam/Proton prefix, all three games). See [What has and has not been verified](#what-has-and-has-not-been-verified) before you rely on it, and make Mod Manager backups first.
+> **Status: early (0.1.2).** Mass Effect 1 has been run end to end through the app on Linux and on Windows. See [What has and has not been verified](#what-has-and-has-not-been-verified) before you rely on it, and make Mod Manager backups first.
 
 ## What it does for you
 
@@ -88,17 +88,20 @@ mele check | install | textures                         lower-level steps (see `
 
 ## What has and has not been verified
 
-Verified on the author's machine (Linux, CachyOS, a Steam non-Steam-shortcut Proton prefix, Nexus Premium):
-- Downloading and staging all 229 mods in the guide's three groups; all matched by hash.
-- ALOT, ISL (via torrent) and the guide's `.mem` textures for all three games, installed with the Windows build of MEM under Proton, with MEM's own verification passing.
-- Read-only native-Linux checks of MEM, backup discovery through the Wine registry file, creating a fresh Proton prefix and starting Mod Manager in it.
-- The orchestrator's safety rules and the GUI's behaviour under automated tests, and every GUI page rendered and inspected as an image.
+**Linux** (the author's machine: CachyOS, a Proton prefix, Nexus Premium):
+- A complete Mass Effect 1 run through the app on a game restored from its backup: the mods downloaded and staged, installed in Mod Manager, the guide's textures installed by the app, and the backup restore and check tools.
+- Downloading and staging all 229 mods in the guide's three groups, all matched by hash; ALOT, ISL (via torrent) and the guide's `.mem` textures for all three games, installed with MEM's own verification passing (done with earlier versions of these tools).
+- Backup discovery through the Wine registry file, creating a fresh Proton prefix and starting Mod Manager in it, creating a backup and registering it through Wine's registry tool, and reading Mod Manager's list of game folders.
+
+**Windows** (reported by the author for Mass Effect 1): game search, the Mod Manager card, mod download and staging, the Mod Manager batch install, the textures through MEM, and creating and restoring a backup all worked end to end.
+
+**Automated tests** cover the orchestrator's safety rules, the backup and restore logic, the game search and the window's behaviour. They run on Linux and Windows in CI, and every window page is rendered and inspected as an image.
 
 **Not yet verified** (treat as experimental):
-- A genuine first-time, start-to-finish run through the GUI on a freshly restored game.
-- **Installing textures with the native Linux build of MEM** (`mele mem install`). Reading works; the install itself has only been proven with the Windows build under Proton.
-- **Everything on Windows.** The Windows code paths (registry backup lookup, the `.7z` MEM download, UTF-16 MEM output, the Windows package) compile and are covered by tests that run in CI, but have not been run on a Windows machine by the author.
-- The CI workflow has not been run on GitHub yet. (The release packages and their bundled 7-Zip build locally and match the pinned hashes, but the bundled 7-Zip has not been exercised by the packaged app, and not at all on Windows.)
+- **Mass Effect 2 and 3 through the app's window**, on either system. (All three games were done with earlier versions of the tools on Linux.)
+- **Game search against real Steam, Heroic and Epic installs.** The folder scan has found real installs; the launcher sources are tested against sample files only. Which source found the game on Windows was not recorded.
+- Installing textures with the native Linux build of MEM through the command line (`mele mem install`) was only tried through the app's run, not separately.
+- Anything not listed above: this is early software, so make Mod Manager backups first.
 
 ## Building from source
 
@@ -121,8 +124,8 @@ Layout: `src/Mele.Engine` (everything that matters, no UI), `src/Mele.Cli`, `src
 
 A goal is to bring in the functionality [ME3TweaksCore](https://github.com/ME3Tweaks/ME3TweaksCore) offers, which this app currently lacks. It was dropped from v0.1 because it does not run natively on Linux (see `docs/phase0-findings.md`), so each item needs either Core (Windows) or our own implementation (Linux):
 
-- [x] Create and restore Mod Manager-compatible game backups from the app: *Back up now*, *Check* and *Restore* buttons under Backups, and `mele backups create|restore|compare`. Create refuses a modded game, verifies the copy, writes the marker last and registers the path (Wine's registry tool on Linux, the registry on Windows). Tested end to end on Linux; **not yet run on Windows**.
-- [x] Detect the game folder automatically (Steam, Heroic and Legendary, Epic, EA, the Windows registry, and a bounded scan of the usual game folders and mounted drives). The window fills the folder in when there is exactly one install and lists them when there are several; `mele detect` shows them, and `--game-dir` becomes optional. *Checked:* the folder scan on a real Linux machine (an installer-made copy in `~/Games`); the Steam, Heroic, Epic and registry sources against test fixtures only, **not against real launcher installs, and not on Windows**. Validating that a found game is vanilla or modded is covered by the backup checks.
+- [x] Create and restore Mod Manager-compatible game backups from the app: *Back up now*, *Check* and *Restore* buttons under Backups, and `mele backups create|restore|compare`. Create refuses a modded game, verifies the copy, writes the marker last and registers the path (Wine's registry tool on Linux, the registry on Windows). Tested end to end on Linux and, for Mass Effect 1, on Windows.
+- [x] Detect the game folder automatically (Steam, Heroic and Legendary, Epic, EA, the Windows registry, and a bounded scan of the usual game folders and mounted drives). The window fills the folder in when there is exactly one install and lists them when there are several; `mele detect` shows them, and `--game-dir` becomes optional. *Checked:* the folder scan on a real Linux machine (an installer-made copy in `~/Games`), and the search found the game on Windows; the Steam, Heroic, Epic and registry sources are tested against sample files only, **not against real launcher installs**. Validating that a found game is vanilla or modded is covered by the backup checks.
 - [ ] ASI loader and Bink video patch management.
 - [ ] Reading game packages (e.g. to show which texture mods are really installed); needs Oodle, so Windows first.
 
@@ -132,7 +135,7 @@ Other planned work:
   - [ ] **A texture list format.** A possible follow-up is a small schema of our own (something like `textures.json`, but meant for users to write and share) that describes texture mods the way a batch file describes mods, so the user can choose which texture mods and which files in each archive get installed.
 - [x] **Warn when the game is not vanilla.** Before a run, check that the game folder is clean, for example no `DLC_MOD_*` folders, no leftover texture markers, and (where possible) that it matches the registered backup. Installing on top of an already-modded game is easy to do by accident and Mod Manager only complains late, at the batch install. *Done:* the checks (and *Check first*) now warn about `DLC_MOD_*` folders and texture files left from an earlier run, until the Mod Manager step is done. It looks only for what mods leave behind, so a clean result does not prove the game is untouched.
 - [x] **Safe game restore in the app.** Dry run first, keeps vanilla files in languages a backup lacks, keeps your graphics settings, reports each failure and checks the result against the backup.
-- [x] **Check Mod Manager's game target matches the app's game folder.** The Mod Manager card in the window, *Check first*, and `mele m3 targets` read Mod Manager's own list of game folders (`GameTargets<game>.txt`) and say whether it has this game folder, has a folder that does not exist (a mistyped path or an unmapped drive), or has a different install, with the exact path to enter. Tested on Linux; on Windows it assumes the same file under `C:\ProgramData` and is **not yet confirmed on a real Windows machine**.
+- [x] **Check Mod Manager's game target matches the app's game folder.** The Mod Manager card in the window, *Check first*, and `mele m3 targets` read Mod Manager's own list of game folders (`GameTargets<game>.txt`) and say whether it has this game folder, has a folder that does not exist (a mistyped path or an unmapped drive), or has a different install, with the exact path to enter. Tested on Linux and, for Mass Effect 1, on Windows.
 - [ ] **Sign in to Nexus Mods in the app** instead of pasting a personal API key. Nexus offers a browser-based sign-in for applications, which I believe needs the app to be registered with Nexus first; this needs checking before it is promised. The key-based sign-in would stay as a fallback.
 
 ## Credits
