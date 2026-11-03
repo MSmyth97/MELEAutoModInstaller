@@ -138,7 +138,8 @@ public class ModManagerTargetsTests : IDisposable
         var c = t.Check("LE1", _game)!;
         Assert.True(c.Ok);
         Assert.Equal(_game, c.PathToEnter);
-        // The same text compared case-sensitively is a different folder that does not exist (on a case-sensitive file system).
+        // Compared case-sensitively, the upper-cased text is another folder, and on a case-sensitive file system it does not exist. Windows and macOS can open it, so only check this on Linux.
+        if (!OperatingSystem.IsLinux()) return;
         Assert.Equal(TargetStatus.Missing, new ModManagerTargets(data, p => p, p => p, caseInsensitive: false).Check("LE1", _game)!.Status);
     }
 }
