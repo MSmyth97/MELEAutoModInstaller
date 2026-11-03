@@ -47,11 +47,9 @@ jobs:
           path: |
             dist/*.tar.gz
             dist/*.zip
-      - name: Publish release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            dist/*.tar.gz
-            dist/*.zip
-          draft: true
-          generate_release_notes: true
+      # One call makes the draft and attaches both packages. (softprops/action-gh-release uploaded in parallel and left a duplicate
+      # release per tag.) The release stays a draft: publish it from the Releases page after reading the notes.
+      - name: Create draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: build/release-draft.sh "$GITHUB_REF_NAME" dist/*.tar.gz dist/*.zip
