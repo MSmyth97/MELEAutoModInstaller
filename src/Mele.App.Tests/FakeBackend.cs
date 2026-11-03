@@ -1,4 +1,5 @@
 using Mele.App.Services;
+using Mele.Engine.Backup;
 using Mele.Engine.Orchestration;
 using Mele.Engine.Platform;
 
@@ -25,4 +26,40 @@ public sealed class FakeBackend : IAppBackend
     public Task<RunPlan> PlanAsync(AppSettings s, IRunHost host, CancellationToken ct) => Task.FromResult(Plan);
     public Task<RunResult> RunAsync(AppSettings s, IRunHost host, CancellationToken ct) => RunScript(host, ct);
     public void ResetState() => ResetCalls++;
+
+    // Backups: each call can be scripted; the defaults describe a game that matches its backup and needs nothing.
+    public Func<string, GameReport> Check { get; set; } = g => new GameReport(g, "/g/" + g, "/b/" + g, new VanillaReport([], []),
+        new CompareReport([], [], [], new HashSet<string> { "INT" }, 3684, 3684), null);
+    public Func<string, BackupPlan> BackupPlanFor { get; set; } = g => new BackupPlan(g, "/g/" + g, "/b/new " + g, 3684, 16_000_000_000);
+    public Func<BackupPlan, BackupResult> CreateResult { get; set; } = _ => new BackupResult(true, true, []);
+    public Func<string, RestorePlan> RestorePlanFor { get; set; } = g => new RestorePlan(g, "/b/" + g, "/g/" + g,
+        new CompareReport(["a.pcc"], [new SizeDiff("b.pcc", 1, 2)], [], new HashSet<string> { "INT" }, 10, 12), ["a.pcc", "b.pcc"], ["DLC.pcc"], ["x_DE.pcc"], [], 2048);
+    public Func<RestorePlan, RestoreResult> RestoreResultFor { get; set; } = _ => new RestoreResult(true, 2, 1, [], null);
+    public Exception? PlanFailure { get; set; }
+    public TaskCompletionSource? HoldCreate { get; set; }
+    public List<string> Calls { get; } = [];
+
+    public Task<GameReport> CheckGameAsync(AppSettings s, string game, CancellationToken ct) { Calls.Add("check " + game); return Task.FromResult(Check(game)); }
+    public Task<BackupPlan> PlanBackupAsync(AppSettings s, string game, CancellationToken ct)
+    {
+        Calls.Add("plan-backup " + game);
+        return PlanFailure != null ? Task.FromException<BackupPlan>(PlanFailure) : Task.FromResult(BackupPlanFor(game));
+    }
+    public async Task<BackupResult> CreateBackupAsync(AppSettings s, BackupPlan plan, IProgress<FileProgress> progress, CancellationToken ct)
+    {
+        Calls.Add("create " + plan.Game);
+        progress.Report(new("Copying the game", 25, 3684, "x"));
+        if (HoldCreate != null) await HoldCreate.Task.WaitAsync(ct);
+        return CreateResult(plan);
+    }
+    public Task<RestorePlan> PlanRestoreAsync(AppSettings s, string game, CancellationToken ct)
+    {
+        Calls.Add("plan-restore " + game);
+        return PlanFailure != null ? Task.FromException<RestorePlan>(PlanFailure) : Task.FromResult(RestorePlanFor(game));
+    }
+    public Task<RestoreResult> RestoreAsync(AppSettings s, RestorePlan plan, IProgress<FileProgress> progress, CancellationToken ct)
+    {
+        Calls.Add("restore " + plan.Game);
+        return Task.FromResult(RestoreResultFor(plan));
+    }
 }

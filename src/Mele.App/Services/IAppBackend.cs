@@ -1,3 +1,4 @@
+using Mele.Engine.Backup;
 using Mele.Engine.Orchestration;
 using Mele.Engine.Platform;
 
@@ -16,6 +17,12 @@ public interface IAppBackend
     void LaunchM3(AppSettings s);
     Task<RunPlan> PlanAsync(AppSettings s, IRunHost host, CancellationToken ct);
     Task<RunResult> RunAsync(AppSettings s, IRunHost host, CancellationToken ct);
+    // Game backups. The Plan* calls change nothing and throw BackupException/RestoreException with a message fit to show the user.
+    Task<GameReport> CheckGameAsync(AppSettings s, string game, CancellationToken ct);
+    Task<BackupPlan> PlanBackupAsync(AppSettings s, string game, CancellationToken ct);
+    Task<BackupResult> CreateBackupAsync(AppSettings s, BackupPlan plan, IProgress<FileProgress> progress, CancellationToken ct);
+    Task<RestorePlan> PlanRestoreAsync(AppSettings s, string game, CancellationToken ct);
+    Task<RestoreResult> RestoreAsync(AppSettings s, RestorePlan plan, IProgress<FileProgress> progress, CancellationToken ct);
     void ResetState();
     string StatePath { get; }
 }

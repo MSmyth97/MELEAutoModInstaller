@@ -1,4 +1,4 @@
-using Mele.Engine.Mem;
+using Mele.Engine.Backup;
 using Mele.Engine.Nexus;
 using Mele.Engine.Platform;
 
@@ -9,7 +9,7 @@ public sealed record PreflightIssue(bool Blocking, string Message);
 public static class Preflight
 {
     public static async Task<IReadOnlyList<PreflightIssue>> RunAsync(IReadOnlyList<string> games, RunPaths paths, IBackupLocator backups,
-        Func<CancellationToken, Task<NexusUser>> validateAccount, double minFreeGb, CancellationToken ct, Func<bool>? extractorAvailable = null)
+        Func<CancellationToken, Task<NexusUser>> validateAccount, double minFreeGb, CancellationToken ct, Func<bool>? extractorAvailable = null, Func<string, bool>? expectVanilla = null)
     {
         var issues = new List<PreflightIssue>();
 
@@ -32,30 +32,22 @@ public static class Preflight
 
         foreach (var game in games)
         {
-            var folder = Path.Combine(paths.GameRoot, "Game", $"ME{MemRunner.GameId(game)}");
+            var folder = GameFolders.Root(paths.GameRoot, game);
             if (!Directory.Exists(folder)) issues.Add(new(true, $"{game}: game folder not found ({folder})"));
+            else if (expectVanilla?.Invoke(game) == true && VanillaCheck.Check(game, folder) is { IsVanilla: false } found)
+                // Not blocking (downloads can go ahead), but Mod Manager refuses to install cleanly over textures, so say so up front.
+                issues.Add(new(false, $"{game}: the game folder already has mods or textures installed ({found.Summary}). Restore it from your backup before the Mod Manager step."));
             var b = backups.Get(game);
             if (!b.Valid) issues.Add(new(true, $"{game}: no valid Mod Manager backup ({b.Reason}). Make one in Mod Manager before modding."));
         }
 
         foreach (var (label, dir) in new[] { ("cache", paths.CacheDir), ("mod library", paths.Library) })
         {
-            var free = FreeGb(dir);
+            var free = DiskSpace.FreeGb(dir);
             if (free is null) continue;
             if (free < minFreeGb) issues.Add(new(true, $"Only {free:0} GB free for the {label} ({dir}); at least {minFreeGb:0} GB is needed."));
             else if (free < minFreeGb * 2) issues.Add(new(false, $"Only {free:0} GB free for the {label}; a full run may need more."));
         }
         return issues;
-    }
-
-    private static double? FreeGb(string dir)
-    {
-        try
-        {
-            var probe = dir;
-            while (!Directory.Exists(probe) && Path.GetDirectoryName(probe) is { Length: > 0 } up) probe = up;
-            return new DriveInfo(Path.GetPathRoot(Path.GetFullPath(probe))!).AvailableFreeSpace / 1073741824.0;
-        }
-        catch (Exception e) when (e is IOException or ArgumentException or UnauthorizedAccessException) { return null; }
     }
 }

@@ -201,6 +201,26 @@ public class OrchestratorTests : IDisposable
     }
 
     [Fact]
+    public async Task Warns_without_blocking_when_the_game_already_has_mods_before_the_mod_manager_step()
+    {
+        Directory.CreateDirectory(Path.Combine(_gameRoot, "Game", "ME1", "BioGame", "DLC", "DLC_MOD_Leftover"));
+        var plan = await Build().PlanAsync(Le1);
+        Assert.Contains(plan.Issues, i => !i.Blocking && i.Message.Contains("already has mods or textures"));
+        Assert.Single(plan.Games);                                                // the plan still goes ahead
+    }
+
+    [Fact]
+    public async Task Does_not_warn_once_the_mod_manager_step_is_done()
+    {
+        Directory.CreateDirectory(Path.Combine(_gameRoot, "Game", "ME1", "BioGame", "DLC", "DLC_MOD_Leftover"));
+        var state = new RunState();
+        state.For("LE1").M3Confirmed = true;
+        state.Save(Path.Combine(_tmp.Path, "state.json"));
+        var plan = await Build().PlanAsync(Le1);
+        Assert.DoesNotContain(plan.Issues, i => i.Message.Contains("already has mods"));
+    }
+
+    [Fact]
     public async Task A_content_failure_stops_before_textures_and_mem()
     {
         var failing = new FakeSource(_ => throw new NexusException("HTTP 403"));

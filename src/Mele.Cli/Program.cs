@@ -1,3 +1,4 @@
+using Mele.Engine.Backup;
 using Mele.Cli;
 using Mele.Engine.Archive;
 using Mele.Engine.Biq;
@@ -23,6 +24,13 @@ const string Usage = """
     install  <group.biq2>... --library DIR [--cache DIR] [--jobs N] [--only TEXT] [--link "Mod=URL"] [--keep-archives] [--dry-run]
     textures <textures.json> --library DIR [--mem-root DIR] [--cache DIR] [--game LE1] [--only TEXT] [--keep-archives]
     backups  [--prefix DIR]                                        show M3's vanilla backups (--prefix = Wine/Proton prefix, Linux)
+    backups compare --game LE1 --game-dir DIR [--prefix DIR] [--list N]   read-only: game folder vs its backup, and whether the game looks vanilla
+    backups create --game LE1 --game-dir DIR --prefix DIR [--to DIR] [--dry-run] [--yes] [--replace]
+             copy a VANILLA game to a backup folder (default: ME1 Backup next to the game folder), verify it, and tell Mod Manager about it.
+             Refuses a modded game, a non-empty destination, too little free space, or a running game.
+    backups restore --game LE1 --game-dir DIR [--prefix DIR] [--dry-run] [--yes] [--delete-unknown] [--list N]
+             put the game back to its backup: copies what differs, removes mod files, keeps vanilla files the backup lacks (other languages).
+             Always shows the plan first; --dry-run stops there. Refuses while a Mass Effect game is running.
     m3 setup  [--prefix-dir DIR]   download Mod Manager (and, on Linux, create the app's own Proton prefix for it)
     m3 status [--prefix-dir DIR]
     m3 launch [--prefix-dir DIR]
@@ -49,13 +57,13 @@ try
         "run" => await Run(o, cts.Token),
         "install" => await Install(o, rest, cts.Token),
         "textures" => await Textures(o, rest, cts.Token),
-        "backups" => Backups(o),
+        "backups" => await BackupsAsync(o, rest, cts.Token),
         "mem" => await Mem(o, rest, cts.Token),
         "m3" => await M3(o, rest, cts.Token),
         _ => Fail($"unknown command '{cmd}'\n\n{Usage}"),
     };
 }
-catch (Exception e) when (e is ProvisionException or IOException or ArgumentException or ApiKeyException or NexusException or MemUpdateException or FileNotFoundException or InvalidDataException or OperationCanceledException)
+catch (Exception e) when (e is RestoreException or BackupException or ProvisionException or IOException or ArgumentException or ApiKeyException or NexusException or MemUpdateException or FileNotFoundException or InvalidDataException or OperationCanceledException)
 {
     Console.Error.WriteLine($"error: {e.Message}");
     return 2;
@@ -172,8 +180,113 @@ static IBackupLocator Locator(Opts o)
     return new WinePrefixBackupLocator(prefix);
 }
 
-static int Backups(Opts o)
+static int BackupsCompare(Opts o)
 {
+    var game = o.Require("game");
+    var folder = GameFolders.Root(o.Require("game-dir"), game);
+    var b = Locator(o).Get(game);
+    if (!b.Valid) { Console.Error.WriteLine($"{game}: no valid backup ({b.Reason})"); return 1; }
+    if (!Directory.Exists(folder)) { Console.Error.WriteLine($"{game}: game folder not found ({folder})"); return 1; }
+
+    var report = GameReport.Build(game, folder, b);
+    Console.WriteLine($"{game} game:   {folder}\n{game} backup: {b.Path}");
+    foreach (var line in report.Lines()) Console.WriteLine(line);
+    var r = report.Compare!;
+    var list = int.TryParse(o.Get("list"), out var n2) ? n2 : 0;
+    if (list > 0)
+    {
+        foreach (var m in r.Missing.Take(list)) Console.WriteLine($"  missing  {m}");
+        foreach (var d in r.Different.Take(list)) Console.WriteLine($"  differs  {d.Path} (backup {d.BackupSize}, game {d.GameSize})");
+        foreach (var e in r.Extra.Take(list)) Console.WriteLine($"  extra    [{e.Kind}] {e.Path}");
+    }
+    return report.Clean ? 0 : 1;
+}
+
+static async Task<int> BackupsRestore(Opts o, CancellationToken ct)
+{
+    var game = o.Require("game");
+    var folder = GameFolders.Root(o.Require("game-dir"), game);
+    var b = Locator(o).Get(game);
+    var restorer = new GameRestorer();
+    var plan = restorer.Prepare(game, b, folder, o.Has("delete-unknown"), ct);
+
+    Console.WriteLine($"{game} game:   {folder}\n{game} backup: {plan.BackupRoot}");
+    foreach (var line in plan.Describe()) Console.WriteLine($"  {line}");
+    var list = int.TryParse(o.Get("list"), out var n) ? n : 0;
+    foreach (var p in plan.Copy.Take(list)) Console.WriteLine($"  copy    {p}");
+    foreach (var p in plan.Delete.Take(list)) Console.WriteLine($"  delete  {p}");
+    foreach (var p in plan.KeptUnknown.Take(list)) Console.WriteLine($"  keep?   {p}");
+
+    if (plan.NothingToDo) { Console.WriteLine("Nothing to do: the game already matches its backup."); return 0; }
+    if (o.Has("dry-run")) { Console.WriteLine("Dry run; nothing was changed."); return 0; }
+    if (!o.Has("yes"))
+    {
+        Console.Write($"This changes files in {folder}. Continue? [y/N] ");
+        if (!string.Equals(Console.ReadLine()?.Trim(), "y", StringComparison.OrdinalIgnoreCase)) { Console.WriteLine("Cancelled; nothing was changed."); return 1; }
+    }
+
+    var last = "";
+    var progress = new Progress<FileProgress>(p =>
+    {
+        if (p.Phase != last) { last = p.Phase; Console.WriteLine($"{p.Phase}..."); }
+        else if (p.Total > 0 && p.Done > 0 && p.Done % 500 == 0) Console.WriteLine($"  {p.Done}/{p.Total}");
+    });
+    var result = await restorer.RestoreAsync(plan, progress, ct);
+    await Task.Delay(50, CancellationToken.None);   // let the last progress lines print
+    Console.WriteLine($"Restored {result.Copied} file(s), removed {result.Deleted}.");
+    foreach (var problem in result.Problems) Console.Error.WriteLine($"problem: {problem}");
+    Console.WriteLine(result.Success ? "The game now matches its backup." : "The restore did not finish cleanly; see the problems above.");
+    return result.Success ? 0 : 1;
+}
+
+static IBackupRegistry BackupRegistry(Opts o)
+{
+    if (OperatingSystem.IsWindows()) return new WindowsBackupRegistry();
+    var wine = WinePrefix.Find(o.Get("prefix") ?? throw new ArgumentException("--prefix (the Wine/Proton prefix M3 runs in) is required on this OS"))
+               ?? throw new ArgumentException("no Wine prefix (user.reg) found at --prefix");
+    return new WineBackupRegistry(new ProtonPrefix(wine.Root, new ProcessRunner()));
+}
+
+static async Task<int> BackupsCreate(Opts o, CancellationToken ct)
+{
+    var game = o.Require("game");
+    var gameDir = o.Require("game-dir");
+    var folder = GameFolders.Root(gameDir, game);
+    var dest = o.Get("to") ?? BackupCreator.DefaultDestination(gameDir, game);
+    var creator = new BackupCreator(BackupRegistry(o));
+    var plan = creator.Prepare(game, folder, dest, Locator(o).Get(game), o.Has("replace"), ct);
+
+    Console.WriteLine($"{game} game:   {plan.GameFolder}\n{game} backup: {plan.Destination}");
+    Console.WriteLine($"  Copy {plan.Files} file(s), {plan.Bytes / 1073741824.0:0.0} GB, then verify and register the backup with Mod Manager");
+    if (o.Has("dry-run")) { Console.WriteLine("Dry run; nothing was copied."); return 0; }
+    if (!o.Has("yes"))
+    {
+        Console.Write("Continue? [y/N] ");
+        if (!string.Equals(Console.ReadLine()?.Trim(), "y", StringComparison.OrdinalIgnoreCase)) { Console.WriteLine("Cancelled; nothing was copied."); return 1; }
+    }
+    var last = "";
+    var progress = new Progress<FileProgress>(p =>
+    {
+        if (p.Phase != last) { last = p.Phase; Console.WriteLine($"{p.Phase}..."); }
+        else if (p.Total > 0 && p.Done > 0 && p.Done % 1000 == 0) Console.WriteLine($"  {p.Done}/{p.Total}");
+    });
+    var result = await creator.CreateAsync(plan, progress, ct);
+    await Task.Delay(50, CancellationToken.None);
+    foreach (var problem in result.Problems) Console.Error.WriteLine($"problem: {problem}");
+    Console.WriteLine(result.Success ? (result.Registered ? "Backup created, verified and registered with Mod Manager." : "Backup created and verified, but Mod Manager still needs to be told about it (see above).") : "The backup was not created.");
+    return result.Success && result.Registered ? 0 : 1;
+}
+
+static async Task<int> BackupsAsync(Opts o, List<string> sub, CancellationToken ct) => sub.FirstOrDefault() switch
+{
+    "restore" => await BackupsRestore(o, ct),
+    "create" => await BackupsCreate(o, ct),
+    _ => Backups(o, sub),
+};
+
+static int Backups(Opts o, List<string> sub)
+{
+    if (sub.FirstOrDefault() == "compare") return BackupsCompare(o);
     var loc = Locator(o);
     bool all = true;
     foreach (var g in new[] { "LE1", "LE2", "LE3" })

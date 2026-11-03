@@ -53,6 +53,29 @@ public class RenderTests : IDisposable
 
     [AvaloniaFact] public void Setup_ready_to_go() => Shot(Ready(), "02_setup_ready", h: 1500);
 
+    [AvaloniaFact] public void Setup_backups_with_a_question_and_results()
+    {
+        var b = new FakeBackend { KeySaved = true, BackupList = [new("LE1", null, false, "No backup recorded by Mod Manager"), new("LE2", "/home/u/Games/ME2 Backup", true, "OK"), new("LE3", "/home/u/Games/ME3 Backup", true, "OK")] };
+        var vm = _helper.Vm(b);
+        vm.ConfirmTitle = "Restore LE2 from its backup?";
+        foreach (var l in new[] { "Copy 2714 file(s) from the backup (6.9 GB): 0 missing, 2714 different", "Delete 3619 file(s) that mods or tools added",
+                     "Keep 3161 vanilla file(s) in languages the backup does not contain",
+                     "Your graphics settings (GamerSettings.ini) are kept. Close the game first. The backup itself is not changed." }) vm.ConfirmLines.Add(l);
+        vm.BackupLines.Add("LE1: the game is not vanilla (53 mod folder(s) in BioGame/DLC (for example DLC_MOD_ALOT, DLC_MOD_ALOVLE1); 32 texture file(s) written by Mass Effect Modder or texture mods). A backup of a modded game would bring the mods back when restored. Restore the game from a real backup first.");
+        Shot(vm, "09_backups_question", h: 1700);
+    }
+
+    [AvaloniaFact] public void Setup_backups_while_working_in_dark_mode()
+    {
+        var b = new FakeBackend { KeySaved = true };
+        var vm = _helper.Vm(b);
+        vm.BackupLines.Add("LE1: restored 2714 file(s) and removed 3619. The game now matches its backup.");
+        vm.BackupLines.Add("LE2: matches its backup and looks vanilla");
+        vm.BackupLines.Add("  Vanilla check: no mods or texture installs found");
+        vm.IsBusy = true; vm.BusyText = "Restoring files: 1300 of 2714";
+        Shot(vm, "10_backups_busy_dark", ThemeVariant.Dark, h: 1700);
+    }
+
     [AvaloniaFact] public void Setup_with_problems()
     {
         var b = new FakeBackend

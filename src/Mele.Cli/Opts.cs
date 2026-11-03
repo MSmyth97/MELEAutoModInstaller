@@ -3,7 +3,7 @@ namespace Mele.Cli;
 /// <summary>Tiny argument parser: positionals, "--name value", and bare "--flag"s from a known set.</summary>
 internal sealed class Opts
 {
-    private static readonly HashSet<string> Flags = ["dry-run", "keep-archives", "help", "skip-textures", "yes"];
+    private static readonly HashSet<string> Flags = ["dry-run", "keep-archives", "help", "skip-textures", "yes", "delete-unknown", "replace"];
     public List<string> Positional { get; } = [];
     private readonly Dictionary<string, List<string>> _values = new(StringComparer.OrdinalIgnoreCase);
 

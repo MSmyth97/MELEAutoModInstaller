@@ -2,15 +2,22 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Mele.App.Services;
+using Mele.Engine.Backup;
 using Mele.Engine.Orchestration;
+using Mele.Engine.Mem;
 using Mele.Engine.Platform;
+using Mele.Engine.Provision;
 
 namespace Mele.App.ViewModels;
 
 public enum Page { Setup, Run, Done }
 
 public sealed record LogLine(string Time, string Text, bool IsError, bool IsWarning, bool IsHeading);
-public sealed record BackupRow(string Game, bool Ok, string Text);
+public sealed record BackupRow(string Game, bool Ok, string Text, IAsyncRelayCommand? Create = null, IAsyncRelayCommand? Restore = null, IAsyncRelayCommand? Check = null)
+{
+    public bool CanCreate => !Ok;
+    public bool CanRestore => Ok;
+}
 public sealed record ChecklistItem(string Text);
 
 public sealed partial class MainViewModel : ObservableObject
@@ -50,6 +57,15 @@ public sealed partial class MainViewModel : ObservableObject
     [ObservableProperty, NotifyPropertyChangedFor(nameof(CanStart))] private bool gameDirOk;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(CanStart))] private bool anyGameSelected;
     public ObservableCollection<BackupRow> Backups { get; } = [];
+    /// <summary>What the last backup, restore or check did or found, shown under the Backups card.</summary>
+    public ObservableCollection<string> BackupLines { get; } = [];
+
+    // A question on the setup page (back up / restore) that waits for a click before anything is changed.
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(ConfirmPending), nameof(BackupActionsEnabled))] private string? confirmTitle;
+    public ObservableCollection<string> ConfirmLines { get; } = [];
+    public bool ConfirmPending => ConfirmTitle != null;
+    /// <summary>The row buttons are live only when nothing is running and no question is waiting.</summary>
+    public bool BackupActionsEnabled => !IsBusy && !ConfirmPending;
 
     // ---- navigation / run state -------------------------------------------------------------------------------
     [ObservableProperty, NotifyPropertyChangedFor(nameof(OnSetup), nameof(OnRun), nameof(OnDone))] private Page page = Page.Setup;
@@ -57,7 +73,7 @@ public sealed partial class MainViewModel : ObservableObject
     public bool OnRun => Page == Page.Run;
     public bool OnDone => Page == Page.Done;
 
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(IsIdle))] private bool isBusy;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(IsIdle), nameof(BackupActionsEnabled))] private bool isBusy;
     public bool IsIdle => !IsBusy;
     [ObservableProperty] private string busyText = "";
     [ObservableProperty] private string currentStep = "";
@@ -85,7 +101,7 @@ public sealed partial class MainViewModel : ObservableObject
         if (string.IsNullOrWhiteSpace(s.GameDir)) { GameDirOk = false; GameDirStatus = "Choose the 'Mass Effect Legendary Edition' folder."; }
         else
         {
-            var missing = s.Games.Select(g => (g, dir: Path.Combine(s.GameDir, "Game", $"ME{g[2]}"))).Where(x => !Directory.Exists(x.dir)).Select(x => x.g).ToList();
+            var missing = s.Games.Select(g => (g, dir: GameFolders.Root(s.GameDir, g))).Where(x => !Directory.Exists(x.dir)).Select(x => x.g).ToList();
             GameDirOk = Directory.Exists(s.GameDir) && missing.Count == 0 && AnyGameSelected;
             GameDirStatus = !Directory.Exists(s.GameDir) ? "That folder does not exist."
                 : missing.Count > 0 ? $"Not a Legendary Edition folder (no game folder for {string.Join(", ", missing)})."
@@ -100,7 +116,11 @@ public sealed partial class MainViewModel : ObservableObject
 
         Backups.Clear();
         foreach (var b in _backend.GetBackups(s).Where(b => s.Games.Contains(b.Game)))
-            Backups.Add(new BackupRow(b.Game, b.Valid, b.Valid ? $"{b.Path}" : b.Reason));
+        {
+            var game = b.Game;
+            Backups.Add(new BackupRow(game, b.Valid, b.Valid ? $"{b.Path}" : b.Reason,
+                new AsyncRelayCommand(() => RunCreateBackup(game)), new AsyncRelayCommand(() => RunRestoreGame(game)), new AsyncRelayCommand(() => RunCheckGame(game))));
+        }
     }
 
     partial void OnGameDirChanged(string value) => Refresh();
@@ -189,6 +209,9 @@ public sealed partial class MainViewModel : ObservableObject
         finally { IsBusy = false; BusyText = ""; Handoff = null; TextureQuestion = null; _cts = null; }
     }
 
+    [RelayCommand] private void ConfirmYes() => Answer(true);
+    [RelayCommand] private void ConfirmNo() => Answer(false);
+
     [RelayCommand] private void Cancel() { _cts?.Cancel(); _decision?.TrySetCanceled(); }
 
     [RelayCommand] private void HandoffDone() => Answer(true);
@@ -251,6 +274,103 @@ public sealed partial class MainViewModel : ObservableObject
     {
         ResultTitle = title; ResultDetail = detail; ResultOk = ok;
         Page = Page.Done;
+    }
+
+    // ---- backups ----------------------------------------------------------------------------------------------
+    private bool Occupied => IsBusy || ConfirmPending;
+
+    private async Task RunCheckGame(string game)
+    {
+        if (Occupied) return;
+        BackupLines.Clear();
+        await Busy($"Checking {game} against its backup", async ct =>
+        {
+            try
+            {
+                var report = await _backend.CheckGameAsync(Settings, game, ct);
+                BackupLines.Add($"{game}: {(report.Clean ? "matches its backup and looks vanilla" : "differs from its backup or has mods installed")}");
+                foreach (var l in report.Lines()) BackupLines.Add("  " + l);
+            }
+            catch (Exception e) when (e is not OperationCanceledException) { BackupLines.Add($"{game}: {e.Message}"); }
+        });
+    }
+
+    private async Task RunCreateBackup(string game)
+    {
+        if (Occupied) return;
+        BackupLines.Clear();
+        BackupPlan? plan = null;
+        await Busy($"Preparing a backup of {game}", async ct =>
+        {
+            try { plan = await _backend.PlanBackupAsync(Settings, game, ct); }
+            catch (Exception e) when (e is BackupException or ProvisionException) { BackupLines.Add(e.Message); }
+        });
+        if (plan == null) return;
+
+        if (!await ConfirmAsync($"Back up {game}?",
+            [$"Copy {plan.Files} files ({plan.Bytes / 1073741824.0:0.0} GB) from {plan.GameFolder}", $"to {plan.Destination}", "then tell Mod Manager where it is. This takes a few minutes and does not change the game."]))
+        { BackupLines.Add("Cancelled; nothing was copied."); return; }
+
+        await Busy($"Backing up {game}", async ct =>
+        {
+            try
+            {
+                var r = await _backend.CreateBackupAsync(Settings, plan, new Progress<FileProgress>(p => _ui(() => ShowProgress(p))), ct);
+                BackupLines.Add(r.Success ? (r.Registered ? $"{game}: backup created, verified and registered with Mod Manager." : $"{game}: backup created and verified, but Mod Manager does not know about it yet.") : $"{game}: the backup was not created.");
+                foreach (var p in r.Problems) BackupLines.Add("  " + p);
+            }
+            catch (OperationCanceledException) { BackupLines.Add($"{game}: stopped. The partial backup in {plan.Destination} is not valid; delete it before trying again."); }
+            catch (Exception e) when (e is BackupException or ProvisionException) { BackupLines.Add(e.Message); }
+        });
+        Refresh();
+    }
+
+    private async Task RunRestoreGame(string game)
+    {
+        if (Occupied) return;
+        BackupLines.Clear();
+        RestorePlan? plan = null;
+        await Busy($"Comparing {game} with its backup", async ct =>
+        {
+            try { plan = await _backend.PlanRestoreAsync(Settings, game, ct); }
+            catch (RestoreException e) { BackupLines.Add(e.Message); }
+        });
+        if (plan == null) return;
+        if (plan.NothingToDo) { BackupLines.Add($"{game} already matches its backup; nothing to restore."); return; }
+
+        if (!await ConfirmAsync($"Restore {game} from its backup?",
+            [.. plan.Describe(), "Your graphics settings (GamerSettings.ini) are kept. Close the game first. The backup itself is not changed."]))
+        { BackupLines.Add("Cancelled; nothing was changed."); return; }
+
+        await Busy($"Restoring {game}", async ct =>
+        {
+            try
+            {
+                var r = await _backend.RestoreAsync(Settings, plan, new Progress<FileProgress>(p => _ui(() => ShowProgress(p))), ct);
+                BackupLines.Add(r.Success ? $"{game}: restored {r.Copied} file(s) and removed {r.Deleted}. The game now matches its backup." : $"{game}: the restore did not finish cleanly.");
+                foreach (var p in r.Problems) BackupLines.Add("  " + p);
+            }
+            catch (OperationCanceledException) { BackupLines.Add($"{game}: stopped part way. Restore again to finish."); }
+            catch (RestoreException e) { BackupLines.Add(e.Message); }
+        });
+        Refresh();
+    }
+
+    private async Task<bool> ConfirmAsync(string title, IEnumerable<string> lines)
+    {
+        _decision = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        _ui(() => { ConfirmLines.Clear(); foreach (var l in lines) ConfirmLines.Add(l); ConfirmTitle = title; });
+        try { return await _decision.Task; }
+        finally { _ui(() => { ConfirmTitle = null; ConfirmLines.Clear(); }); }
+    }
+
+    private string _lastPhase = "";
+    /// <summary>One line per phase and a count every 25 files: thousands of tiny updates would make the window lag.</summary>
+    private void ShowProgress(FileProgress p)
+    {
+        if (p.Phase == _lastPhase && p.Total > 25 && p.Done % 25 != 0) return;
+        _lastPhase = p.Phase;
+        BusyText = p.Total > 1 ? $"{p.Phase}: {p.Done} of {p.Total}" : p.Phase;
     }
 
     // ---- helpers ----------------------------------------------------------------------------------------------

@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Mele.Engine.Archive;
+using Mele.Engine.Backup;
 using Mele.Engine.Mem;
 using Mele.Engine.Nexus;
 using Mele.Engine.Orchestration;
@@ -35,6 +36,40 @@ public sealed class AppBackend : IAppBackend
     {
         var loc = M3Location.Resolve(s.PrefixDir);
         return new[] { "LE1", "LE2", "LE3" }.Select(loc.Backups.Get).ToList();
+    }
+
+    public Task<GameReport> CheckGameAsync(AppSettings s, string game, CancellationToken ct)
+    {
+        var backup = M3Location.Resolve(s.PrefixDir).Backups.Get(game);
+        return Task.Run(() => GameReport.Build(game, GameFolders.Root(s.GameDir, game), backup, ct), ct);
+    }
+
+    public Task<BackupPlan> PlanBackupAsync(AppSettings s, string game, CancellationToken ct)
+    {
+        var loc = M3Location.Resolve(s.PrefixDir);
+        var creator = Creator(loc);
+        return Task.Run(() => creator.Prepare(game, GameFolders.Root(s.GameDir, game), BackupCreator.DefaultDestination(s.GameDir, game), loc.Backups.Get(game), ct: ct), ct);
+    }
+
+    public Task<BackupResult> CreateBackupAsync(AppSettings s, BackupPlan plan, IProgress<FileProgress> progress, CancellationToken ct) =>
+        Creator(M3Location.Resolve(s.PrefixDir)).CreateAsync(plan, progress, ct);
+
+    public Task<RestorePlan> PlanRestoreAsync(AppSettings s, string game, CancellationToken ct)
+    {
+        var backup = M3Location.Resolve(s.PrefixDir).Backups.Get(game);
+        return Task.Run(() => new GameRestorer().Prepare(game, backup, GameFolders.Root(s.GameDir, game), ct: ct), ct);
+    }
+
+    public Task<RestoreResult> RestoreAsync(AppSettings s, RestorePlan plan, IProgress<FileProgress> progress, CancellationToken ct) =>
+        new GameRestorer().RestoreAsync(plan, progress, ct);
+
+    /// <summary>How a new backup is announced to Mod Manager: the registry on Windows, Wine's registry in the app's prefix on Linux.</summary>
+    private static BackupCreator Creator(M3Location loc)
+    {
+        if (OperatingSystem.IsWindows()) return new BackupCreator(new WindowsBackupRegistry());
+        if (loc.Prefix is not { IsInitialized: true } prefix)
+            throw new BackupException("Set up Mod Manager first (step 3): its Wine prefix is where the backup has to be registered.");
+        return new BackupCreator(new WineBackupRegistry(prefix));
     }
 
     public M3Status GetM3Status(AppSettings s)

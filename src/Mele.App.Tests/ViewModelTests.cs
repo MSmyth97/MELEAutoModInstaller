@@ -1,6 +1,7 @@
 using Avalonia.Headless.XUnit;
 using Avalonia.Threading;
 using Mele.App.ViewModels;
+using Mele.Engine.Backup;
 using Mele.Engine.Orchestration;
 using Mele.Engine.Platform;
 
@@ -221,5 +222,174 @@ public class ViewModelTests : IDisposable
         var b = new FakeBackend();
         Vm(b).StartFreshCommand.Execute(null);
         Assert.Equal(1, b.ResetCalls);
+    }
+
+    // ---- backups: create, restore, check -----------------------------------------------------------------------
+
+    private static BackupRow Row(MainViewModel vm, string game) => vm.Backups.Single(r => r.Game == game);
+
+    [AvaloniaFact]
+    public void A_game_without_a_backup_offers_to_make_one_and_a_game_with_one_offers_check_and_restore()
+    {
+        var b = new FakeBackend { BackupList = [new("LE1", null, false, "No backup recorded"), new("LE2", "/b/me2", true, "OK"), new("LE3", null, false, "x")] };
+        var vm = Vm(b);
+        Assert.True(Row(vm, "LE1").CanCreate);
+        Assert.False(Row(vm, "LE1").CanRestore);
+        Assert.True(Row(vm, "LE2").CanRestore);
+        Assert.False(Row(vm, "LE2").CanCreate);
+    }
+
+    [AvaloniaFact]
+    public async Task Making_a_backup_shows_what_will_happen_and_waits_for_a_yes_before_copying()
+    {
+        var b = new FakeBackend { BackupList = [new("LE1", null, false, "No backup recorded"), new("LE2", "/b", true, "OK"), new("LE3", "/b", true, "OK")] };
+        var vm = Vm(b, ui: a => Dispatcher.UIThread.Post(a));
+        var task = Row(vm, "LE1").Create!.ExecuteAsync(null);
+
+        await WaitFor(() => vm.ConfirmPending);
+        Assert.Equal("Back up LE1?", vm.ConfirmTitle);
+        Assert.Contains(vm.ConfirmLines, l => l.Contains("3684 files") && l.Contains("/g/LE1"));
+        Assert.Contains(vm.ConfirmLines, l => l.Contains("/b/new LE1"));
+        Assert.DoesNotContain("create LE1", b.Calls);                              // nothing is copied before the click
+
+        vm.ConfirmYesCommand.Execute(null);
+        await task;
+        Dispatcher.UIThread.RunJobs();
+        Assert.Contains("create LE1", b.Calls);
+        Assert.False(vm.ConfirmPending);
+        Assert.Contains(vm.BackupLines, l => l.Contains("backup created, verified and registered"));
+        Assert.False(vm.IsBusy);
+    }
+
+    [AvaloniaFact]
+    public async Task Declining_the_backup_copies_nothing()
+    {
+        var b = new FakeBackend { BackupList = [new("LE1", null, false, "x"), new("LE2", "/b", true, "OK"), new("LE3", "/b", true, "OK")] };
+        var vm = Vm(b, ui: a => Dispatcher.UIThread.Post(a));
+        var task = Row(vm, "LE1").Create!.ExecuteAsync(null);
+        await WaitFor(() => vm.ConfirmPending);
+        vm.ConfirmNoCommand.Execute(null);
+        await task;
+        Dispatcher.UIThread.RunJobs();
+        Assert.DoesNotContain("create LE1", b.Calls);
+        Assert.Contains(vm.BackupLines, l => l.Contains("nothing was copied"));
+    }
+
+    [AvaloniaFact]
+    public async Task A_refused_backup_shows_the_reason_and_never_asks()
+    {
+        var b = new FakeBackend { BackupList = [new("LE1", null, false, "x"), new("LE2", "/b", true, "OK"), new("LE3", "/b", true, "OK")],
+            PlanFailure = new BackupException("LE1: the game is not vanilla (53 mod folder(s) in BioGame/DLC). Restore the game first.") };
+        var vm = Vm(b);
+        await Row(vm, "LE1").Create!.ExecuteAsync(null);
+        Assert.False(vm.ConfirmPending);
+        Assert.Contains(vm.BackupLines, l => l.Contains("not vanilla"));
+        Assert.DoesNotContain("create LE1", b.Calls);
+    }
+
+    [AvaloniaFact]
+    public async Task A_backup_that_could_not_be_registered_says_so_and_lists_the_problem()
+    {
+        var b = new FakeBackend { BackupList = [new("LE1", null, false, "x"), new("LE2", "/b", true, "OK"), new("LE3", "/b", true, "OK")],
+            CreateResult = _ => new BackupResult(true, false, ["The backup is complete but Mod Manager does not know about it yet (reg exit 1)."]) };
+        var vm = Vm(b, ui: a => Dispatcher.UIThread.Post(a));
+        var task = Row(vm, "LE1").Create!.ExecuteAsync(null);
+        await WaitFor(() => vm.ConfirmPending);
+        vm.ConfirmYesCommand.Execute(null);
+        await task;
+        Dispatcher.UIThread.RunJobs();
+        Assert.Contains(vm.BackupLines, l => l.Contains("Mod Manager does not know about it yet.") || l.Contains("does not know about it yet"));
+        Assert.Contains(vm.BackupLines, l => l.Contains("reg exit 1"));
+    }
+
+    [AvaloniaFact]
+    public async Task Restore_shows_the_plan_waits_for_a_yes_then_reports_the_result_and_refreshes()
+    {
+        var b = new FakeBackend();
+        var vm = Vm(b, ui: a => Dispatcher.UIThread.Post(a));
+        var task = Row(vm, "LE1").Restore!.ExecuteAsync(null);
+
+        await WaitFor(() => vm.ConfirmPending);
+        Assert.Equal("Restore LE1 from its backup?", vm.ConfirmTitle);
+        Assert.Contains(vm.ConfirmLines, l => l.StartsWith("Copy 2 file(s)"));
+        Assert.Contains(vm.ConfirmLines, l => l.StartsWith("Keep 1 vanilla file(s)"));
+        Assert.Contains(vm.ConfirmLines, l => l.Contains("GamerSettings.ini"));
+        Assert.DoesNotContain("restore LE1", b.Calls);
+
+        vm.ConfirmYesCommand.Execute(null);
+        await task;
+        Dispatcher.UIThread.RunJobs();
+        Assert.Contains("restore LE1", b.Calls);
+        Assert.Contains(vm.BackupLines, l => l.Contains("restored 2 file(s) and removed 1"));
+    }
+
+    [AvaloniaFact]
+    public async Task Restore_failures_are_listed_not_hidden()
+    {
+        var b = new FakeBackend { RestoreResultFor = _ => new RestoreResult(false, 1, 0, ["Could not delete x.pcc: access denied"], null) };
+        var vm = Vm(b, ui: a => Dispatcher.UIThread.Post(a));
+        var task = Row(vm, "LE1").Restore!.ExecuteAsync(null);
+        await WaitFor(() => vm.ConfirmPending);
+        vm.ConfirmYesCommand.Execute(null);
+        await task;
+        Dispatcher.UIThread.RunJobs();
+        Assert.Contains(vm.BackupLines, l => l.Contains("did not finish cleanly"));
+        Assert.Contains(vm.BackupLines, l => l.Contains("access denied"));
+    }
+
+    [AvaloniaFact]
+    public async Task Restore_says_so_when_the_game_already_matches_and_asks_nothing()
+    {
+        var b = new FakeBackend { RestorePlanFor = g => new RestorePlan(g, "/b", "/g", new CompareReport([], [], [], new HashSet<string>(), 1, 1), [], [], [], [], 0) };
+        var vm = Vm(b);
+        await Row(vm, "LE1").Restore!.ExecuteAsync(null);
+        Assert.False(vm.ConfirmPending);
+        Assert.Contains(vm.BackupLines, l => l.Contains("already matches its backup"));
+        Assert.DoesNotContain("restore LE1", b.Calls);
+    }
+
+    [AvaloniaFact]
+    public async Task A_restore_the_engine_refuses_shows_its_message()
+    {
+        var b = new FakeBackend { PlanFailure = new RestoreException("LE1: there is no valid backup to restore from (No backup recorded).") };
+        var vm = Vm(b);
+        await Row(vm, "LE1").Restore!.ExecuteAsync(null);
+        Assert.Contains(vm.BackupLines, l => l.Contains("no valid backup to restore from"));
+        Assert.False(vm.ConfirmPending);
+    }
+
+    [AvaloniaFact]
+    public async Task Check_lists_what_the_comparison_found()
+    {
+        var b = new FakeBackend { Check = g => new GameReport(g, "/g", "/b", new VanillaReport(["53 mod folder(s) in BioGame/DLC"], ["ASI mods are installed"]),
+            new CompareReport([], [new SizeDiff("a", 1, 2)], [new ExtraFile("BioGame/DLC/DLC_MOD_X/a.pcc", ExtraKind.Mod), new ExtraFile("x_DE.pcc", ExtraKind.Localised)], new HashSet<string> { "INT" }, 5, 7), null) };
+        var vm = Vm(b);
+        await Row(vm, "LE1").Check!.ExecuteAsync(null);
+        Assert.Contains(vm.BackupLines, l => l.Contains("differs from its backup or has mods installed"));
+        Assert.Contains(vm.BackupLines, l => l.Contains("NOT vanilla") && l.Contains("53 mod folder"));
+        Assert.Contains(vm.BackupLines, l => l.Contains("localised vanilla files 1"));
+    }
+
+    [AvaloniaFact]
+    public async Task While_a_backup_is_being_made_other_backup_actions_are_ignored()
+    {
+        var hold = new TaskCompletionSource();
+        var b = new FakeBackend { BackupList = [new("LE1", null, false, "x"), new("LE2", "/b", true, "OK"), new("LE3", "/b", true, "OK")], HoldCreate = hold };
+        var vm = Vm(b, ui: a => Dispatcher.UIThread.Post(a));
+        var task = Row(vm, "LE1").Create!.ExecuteAsync(null);
+        await WaitFor(() => vm.ConfirmPending);
+        await Row(vm, "LE2").Restore!.ExecuteAsync(null);                         // ignored while a question is open
+        Assert.DoesNotContain("plan-restore LE2", b.Calls);
+        Assert.False(vm.BackupActionsEnabled);                                     // the row buttons are dimmed while a question is open
+        vm.ConfirmYesCommand.Execute(null);
+        await WaitFor(() => vm.IsBusy && vm.BusyText.Contains("25 of 3684"));    // progress is shown while copying
+        Assert.False(vm.BackupActionsEnabled);                                     // and while it works
+        await Row(vm, "LE2").Restore!.ExecuteAsync(null);                         // ignored while busy
+        Assert.DoesNotContain("plan-restore LE2", b.Calls);
+        hold.SetResult();
+        await task;
+        Dispatcher.UIThread.RunJobs();
+        Assert.False(vm.IsBusy);
+        Assert.True(vm.BackupActionsEnabled);
     }
 }

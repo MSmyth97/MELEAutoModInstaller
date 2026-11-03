@@ -31,7 +31,7 @@ Automates the busywork of the [Mass Effect Legendary Edition modding guide](http
 1. Download the package for your system from the Releases page, unpack it, and run `MELEAutoModInstaller` (`.exe` on Windows).
 2. **Nexus account:** paste your API key and press *Save and check*.
 3. **Your game:** choose the game folder and tick the games you want. Untick textures if you only want the mods.
-4. **Mod Manager:** press *Set up Mod Manager* (downloads it; on Linux also creates the Proton prefix). Open it, add your game (on Linux, use the `Z:` drive, which is the whole filesystem, e.g. `Z:\home\you\Games\Mass Effect Legendary Edition\Game\ME1`; note `X:` in the app's prefix is your home folder, so `X:\home\you\…` is wrong), and **make a backup of each game**. Back in this app, *Refresh* under Backups.
+4. **Mod Manager:** press *Set up Mod Manager* (downloads it; on Linux also creates the Proton prefix). Open it, add your game (on Linux, use the `Z:` drive, which is the whole filesystem, e.g. `Z:\home\you\Games\Mass Effect Legendary Edition\Game\ME1`; note `X:` in the app's prefix is your home folder, so `X:\home\you\…` is wrong), and **make a backup of each game** (or, with a game that is still untouched, press *Back up now* under Backups: it copies the game, checks the copy and tells Mod Manager about it). Back in this app, *Refresh* under Backups.
 5. Press **Check first** if you want a read-only preview, then **Start**.
 6. When it says *Your turn*, open Mod Manager's **Batch Mod Installer**, load the listed groups (they are already in its list) and install them one game at a time. Press *I have installed them*.
 7. Confirm the texture install when asked. It takes 15 to 40 minutes per game.
@@ -45,6 +45,9 @@ mele plan     --game-dir DIR [--prefix DIR]            read-only: checks, guide 
 mele run      --game-dir DIR [--prefix DIR] [--game LE1]... [--skip-textures] [--yes]
 mele state    show | reset | adopt [--game LE1]...      what the app believes is done
 mele backups  [--prefix DIR]
+mele backups compare --game LE1 --game-dir DIR [--prefix DIR] [--list N]   read-only: game vs its backup, and does it look vanilla
+mele backups create  --game LE1 --game-dir DIR --prefix DIR [--to DIR] [--dry-run] [--yes]   back up a vanilla game, verify it and register it with Mod Manager
+mele backups restore --game LE1 --game-dir DIR [--prefix DIR] [--dry-run] [--yes]   put the game back to its backup (shows the plan first)
 mele m3       setup | status | launch
 mele mem      update | install --game LE1 --mfl FILE --game-dir DIR
 mele check | install | textures                         lower-level steps (see `mele --help`)
@@ -77,7 +80,7 @@ mele check | install | textures                         lower-level steps (see `
 - **"no valid Mod Manager backup"** – make the backup in Mod Manager, then *Refresh*. The backup must be one Mod Manager recorded; the app reads that record (the registry on Windows, the prefix's `user.reg` on Linux).
 - **Mod Manager does not start on Linux / wine version mismatch** – do not run a Steam/Proton game from the same prefix at the same time; its wineserver blocks other Proton versions in that prefix.
 - **Wrong path in Mod Manager (Linux)** – the prefix maps `Z:` to `/` and `X:` to your home folder. `Z:\home\you\Games\…` and `X:\Games\…` are the same place; `X:\home\you\Games\…` does not exist. Mod Manager does not warn you; it just does nothing.
-- **Mod Manager's "Restore to target" does nothing on Linux** – its Linux restore runs an `rsync` script that hides errors and always reports success. If the game folder is unchanged after a restore, restore by hand from your backup with the same command Mod Manager meant to run: `rsync -a --delete --exclude cmm_vanilla "<backup>/" "<game>/Game/ME1/"` (change `ME1` for other games; `-n` first for a dry run). Mod Manager backups made this way may be missing some game files (e.g. `BioGame/Content/Packages/ISACT` for LE1); compare with `rsync -an --delete` first and add `--exclude` for anything the backup lacks, or `--delete` removes it from the game. ME3Tweaks do not support Linux, so this is not reported upstream.
+- **Mod Manager's "Restore to target" does nothing on Linux** – its Linux restore runs an `rsync` script that hides errors and always reports success. If the game folder is unchanged after a restore, use the app's own: `mele backups restore --game LE1 --game-dir DIR --prefix PREFIX --dry-run` shows what it would do, and the same command without `--dry-run` does it (it asks first, and refuses while a Mass Effect game is running). Unlike a plain mirror, it keeps vanilla files a backup lacks: a backup made with only some languages selected has no files for the others, and `rsync --delete` or Mod Manager's restore would remove them. ME3Tweaks do not support Linux, so this is not reported upstream.
 - **Mod Manager says "Texture mods are installed" before the batch install** – the game is not vanilla. Restore it first (see above); the app does not yet detect this for you.
 - **"MEM failed"** – restore the game from your Mod Manager backup if it misbehaves, then retry. The log shows MEM's own output.
 - **A mod is "InstalledVersionDiffers"** – the guide pins a file and Nexus now serves a newer build with a different `moddesc.ini`. It was still installed; check the mod's page if something is off.
@@ -117,7 +120,7 @@ Layout: `src/Mele.Engine` (everything that matters, no UI), `src/Mele.Cli`, `src
 
 A goal is to bring in the functionality [ME3TweaksCore](https://github.com/ME3Tweaks/ME3TweaksCore) offers, which this app currently lacks. It was dropped from v0.1 because it does not run natively on Linux (see `docs/phase0-findings.md`), so each item needs either Core (Windows) or our own implementation (Linux):
 
-- [ ] Create and restore Mod Manager-compatible game backups from the app (today it only checks that they exist).
+- [x] Create and restore Mod Manager-compatible game backups from the app: *Back up now*, *Check* and *Restore* buttons under Backups, and `mele backups create|restore|compare`. Create refuses a modded game, verifies the copy, writes the marker last and registers the path (Wine's registry tool on Linux, the registry on Windows). Tested end to end on Linux; **not yet run on Windows**.
 - [ ] Detect the game folder automatically (Steam, EA, Epic) and validate it (vanilla, modded, broken).
 - [ ] ASI loader and Bink video patch management.
 - [ ] Reading game packages (e.g. to show which texture mods are really installed); needs Oodle, so Windows first.
@@ -126,8 +129,8 @@ Other planned work:
 
 - [ ] **Any mod list, not just this guide.** Let the user load any Mod Manager batch install group (`.biq2`) instead of only the guide's. The app already reads that format, so downloading and staging would work as it does now. Texture mods would not be installed automatically for an arbitrary list, since they come from the guide's own manifest (`textures.json`), not from the batch file.
   - [ ] **A texture list format.** A possible follow-up is a small schema of our own (something like `textures.json`, but meant for users to write and share) that describes texture mods the way a batch file describes mods, so the user can choose which texture mods and which files in each archive get installed.
-- [ ] **Warn when the game is not vanilla.** Before a run, check that the game folder is clean, for example no `DLC_MOD_*` folders, no leftover texture markers, and (where possible) that it matches the registered backup. Installing on top of an already-modded game is easy to do by accident and Mod Manager only complains late, at the batch install.
-- [ ] **Safe game restore in the app (Linux first).** Mod Manager's own restore does nothing on Linux (see Troubleshooting). The app could run the equivalent `rsync` itself, with a dry run shown first, real error reporting, and protection for files a backup is missing (such as LE1's `ISACT` audio), then verify the result against the backup.
+- [x] **Warn when the game is not vanilla.** Before a run, check that the game folder is clean, for example no `DLC_MOD_*` folders, no leftover texture markers, and (where possible) that it matches the registered backup. Installing on top of an already-modded game is easy to do by accident and Mod Manager only complains late, at the batch install. *Done:* the checks (and *Check first*) now warn about `DLC_MOD_*` folders and texture files left from an earlier run, until the Mod Manager step is done. It looks only for what mods leave behind, so a clean result does not prove the game is untouched.
+- [x] **Safe game restore in the app.** Dry run first, keeps vanilla files in languages a backup lacks, keeps your graphics settings, reports each failure and checks the result against the backup.
 - [ ] **Check Mod Manager's game target matches the app's game folder.** The app and Mod Manager each keep their own idea of where the game is, and a wrong or mistyped path in Mod Manager fails silently. The app should compare them and, on Linux, show the exact path to enter, worked out from the game folder and the prefix's drive mappings.
 - [ ] **Sign in to Nexus Mods in the app** instead of pasting a personal API key. Nexus offers a browser-based sign-in for applications, which I believe needs the app to be registered with Nexus first; this needs checking before it is promised. The key-based sign-in would stay as a fallback.
 

@@ -76,19 +76,43 @@
             <StackPanel Spacing="8">
               <TextBlock Classes="h2" Text="4. Backups" />
               <TextBlock Classes="muted" TextWrapping="Wrap"
-                         Text="Texture installs cannot be undone without a backup. In Mod Manager, make a backup of each game you selected (Mod Management, then Backup) before you start." />
-              <ItemsControl ItemsSource="{Binding Backups}">
+                         Text="Texture installs cannot be undone without a backup. Make one while the game is still untouched: here with 'Back up now', or in Mod Manager (Mod Management, then Backup). 'Check' compares a game with its backup; 'Restore' puts a game back to it." />
+              <ItemsControl ItemsSource="{Binding Backups}" IsEnabled="{Binding BackupActionsEnabled}">
                 <ItemsControl.ItemTemplate>
                   <DataTemplate x:DataType="vm:BackupRow">
-                    <Grid ColumnDefinitions="28,60,*" Margin="0,2">
-                      <TextBlock Grid.Column="0" Text="{Binding Ok, Converter={x:Static vm:Glyphs.Check}}" Classes.ok="{Binding Ok}" Classes.bad="{Binding !Ok}" FontWeight="Bold" />
-                      <TextBlock Grid.Column="1" Text="{Binding Game}" FontWeight="SemiBold" />
-                      <TextBlock Grid.Column="2" Text="{Binding Text}" TextWrapping="Wrap" Classes="muted" />
+                    <Grid ColumnDefinitions="28,60,*,Auto" Margin="0,3">
+                      <TextBlock Grid.Column="0" Text="{Binding Ok, Converter={x:Static vm:Glyphs.Check}}" Classes.ok="{Binding Ok}" Classes.bad="{Binding !Ok}" FontWeight="Bold" VerticalAlignment="Center" />
+                      <TextBlock Grid.Column="1" Text="{Binding Game}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                      <TextBlock Grid.Column="2" Text="{Binding Text}" TextWrapping="Wrap" Classes="muted" VerticalAlignment="Center" Margin="0,0,10,0" />
+                      <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="6">
+                        <Button Content="Back up now" Command="{Binding Create}" IsVisible="{Binding CanCreate}" />
+                        <Button Content="Check" Command="{Binding Check}" IsVisible="{Binding CanRestore}" />
+                        <Button Content="Restore" Command="{Binding Restore}" IsVisible="{Binding CanRestore}" />
+                      </StackPanel>
                     </Grid>
                   </DataTemplate>
                 </ItemsControl.ItemTemplate>
               </ItemsControl>
               <Button Content="Refresh" Command="{Binding RefreshStatusCommand}" HorizontalAlignment="Left" />
+              <Border Classes="panel warn" IsVisible="{Binding ConfirmPending}">
+                <StackPanel Spacing="8">
+                  <TextBlock Classes="h2" Text="{Binding ConfirmTitle}" />
+                  <ItemsControl ItemsSource="{Binding ConfirmLines}">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate x:DataType="x:String"><TextBlock Text="{Binding}" TextWrapping="Wrap" /></DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                  <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Button Classes="primary" Content="Yes, go ahead" Command="{Binding ConfirmYesCommand}" />
+                    <Button Content="No, cancel" Command="{Binding ConfirmNoCommand}" />
+                  </StackPanel>
+                </StackPanel>
+              </Border>
+              <ItemsControl ItemsSource="{Binding BackupLines}" IsVisible="{Binding BackupLines.Count}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="x:String"><TextBlock Text="{Binding}" TextWrapping="Wrap" /></DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
               <TextBlock Classes="muted" TextWrapping="Wrap" IsVisible="{Binding IsLinux}"
                          Text="Just added or made a backup but it does not show? On Linux, Wine writes its registry to disk after a short delay. Wait a few seconds, or close Mod Manager, then press Refresh." />
             </StackPanel>
@@ -212,6 +236,7 @@
       <StackPanel Orientation="Horizontal" Spacing="12">
         <ProgressBar IsIndeterminate="True" Width="120" />
         <TextBlock Text="{Binding BusyText}" VerticalAlignment="Center" Classes="muted" />
+        <Button Content="Stop" Command="{Binding CancelCommand}" IsVisible="{Binding OnSetup}" />
       </StackPanel>
     </Border>
   </Grid>

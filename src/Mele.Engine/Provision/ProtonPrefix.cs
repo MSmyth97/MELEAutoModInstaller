@@ -72,6 +72,36 @@ public sealed class ProtonPrefix(string root, IProcessRunner runner, Func<string
         return Process.Start(psi) ?? throw new ProvisionException("Could not start umu-run");
     }
 
+    /// <summary>
+    /// Sets a string in the prefix's HKEY_CURRENT_USER through Wine's own <c>reg</c> tool, so Wine keeps its registry consistent and
+    /// Mod Manager sees the value (editing user.reg while Wine runs would be overwritten). Safe while Mod Manager is open: <c>runinprefix</c>
+    /// joins the running Wine server instead of waiting for it.
+    /// </summary>
+    public async Task SetRegistryStringAsync(string key, string name, string value, Action<string>? onLine = null, CancellationToken ct = default)
+    {
+        var rc = await RunRegAsync(["reg", "add", @"HKCU\" + key, "/v", name, "/t", "REG_SZ", "/d", value, "/f"], onLine, ct);
+        if (rc != 0) throw new ProvisionException($"Could not write {name} to the prefix registry (reg exit {rc})");
+    }
+
+    /// <summary>Reads a string back through Wine, which sees changes Wine has not yet flushed to user.reg.</summary>
+    public async Task<string?> GetRegistryStringAsync(string key, string name, CancellationToken ct = default)
+    {
+        string? value = null;
+        var rc = await RunRegAsync(["reg", "query", @"HKCU\" + key, "/v", name], line =>
+        {
+            var m = System.Text.RegularExpressions.Regex.Match(line, @"^\s+" + System.Text.RegularExpressions.Regex.Escape(name) + @"\s+REG_SZ\s+(.*)$");
+            if (m.Success) value = m.Groups[1].Value;
+        }, ct);
+        return rc == 0 ? value : null;
+    }
+
+    private Task<int> RunRegAsync(IReadOnlyList<string> args, Action<string>? onLine, CancellationToken ct)
+    {
+        var umu = Umu ?? throw new ProvisionException("umu-launcher (umu-run) is required to write to the prefix registry.");
+        var env = new Dictionary<string, string>(Env) { ["PROTON_VERB"] = "runinprefix" };
+        return runner.RunAsync(umu, args, onLine, env, ct);
+    }
+
     /// <summary>The path M3 must be given for a Linux folder (via the prefix's Z: drive, which maps "/").</summary>
     public string? WindowsPathFor(string linuxPath) => Wine?.ToWindowsPath(linuxPath);
 }
